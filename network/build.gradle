@@ -1,0 +1,6 @@
+apply from: "../module.gradle"
+
+dependencies {
+    implementation deps.okhttp
+    implementation deps.logging_interceptor
+}

@@ -24,6 +24,8 @@ versions.navigation = '2.2.1'
 versions.lifecycle_extensions = '2.2.0'
 versions.auto_service = '1.0-rc6'
 versions.fastjson = '1.1.71.android'
+versions.okhttp = '4.2.0'
+versions.logging_interceptor = '3.5.0'
 
 ext.versions = versions
 
@@ -45,6 +47,8 @@ deps.navigation_fragment_ktx = "androidx.navigation:navigation-fragment-ktx:${ve
 deps.navigation_ui_ktx = "androidx.navigation:navigation-ui-ktx:${versions.navigation}"
 deps.auto_service = "com.google.auto.service:auto-service:${versions.auto_service}"
 deps.fastjson = "com.alibaba:fastjson:${versions.fastjson}"
+deps.okhttp = "com.squareup.okhttp3:okhttp:${versions.okhttp}"
+deps.logging_interceptor = "com.squareup.okhttp3:logging-interceptor:${versions.logging_interceptor}"
 
 ext.deps = deps
 
