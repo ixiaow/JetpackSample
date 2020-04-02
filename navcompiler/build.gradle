@@ -1,0 +1,11 @@
+apply plugin: 'java-library'
+
+dependencies {
+    implementation project(':navannotation')
+    implementation deps.auto_service
+    annotationProcessor deps.auto_service
+    implementation deps.fastjson
+}
+
+sourceCompatibility = "8"
+targetCompatibility = "8"
