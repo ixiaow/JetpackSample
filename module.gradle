@@ -21,6 +21,11 @@ android {
         }
     }
 
+    compileOptions {
+        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_1_8
+    }
+
 }
 
 dependencies {
@@ -29,4 +34,8 @@ dependencies {
     testImplementation deps.junit
     androidTestImplementation deps.ext_junit
     androidTestImplementation deps.espresso_core
+    implementation deps.room_runtime
+    implementation deps.room_lifecycle_extensions
+    annotationProcessor deps.room_compiler
+    annotationProcessor deps.room_lifecycle_compiler
 }

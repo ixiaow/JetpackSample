@@ -1,6 +1,16 @@
 apply from: "../module.gradle"
+android {
+    defaultConfig {
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments = ["room.schemaLocation": "$projectDir/schemas".toString()]
+            }
+        }
+    }
+}
 
 dependencies {
     implementation deps.okhttp
     implementation deps.logging_interceptor
+    implementation project(':common')
 }

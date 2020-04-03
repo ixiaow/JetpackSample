@@ -45,4 +45,6 @@ dependencies {
 
     implementation project(":navannotation")
     annotationProcessor project(":navcompiler")
+    implementation project(":network")
+    implementation project(path: ':common')
 }

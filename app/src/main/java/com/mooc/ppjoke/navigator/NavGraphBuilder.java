@@ -15,7 +15,7 @@ import androidx.navigation.fragment.FragmentNavigator;
 
 import com.mooc.ppjoke.model.Destination;
 import com.mooc.ppjoke.utils.AppConfig;
-import com.mooc.ppjoke.utils.AppGlobals;
+import com.mooc.common.utils.AppGlobals;
 
 import java.util.Map;
 

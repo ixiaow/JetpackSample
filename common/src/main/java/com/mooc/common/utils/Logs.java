@@ -1,4 +1,4 @@
-package com.mooc.ppjoke.utils;
+package com.mooc.common.utils;
 
 import android.util.Log;
 

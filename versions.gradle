@@ -26,6 +26,7 @@ versions.auto_service = '1.0-rc6'
 versions.fastjson = '1.1.71.android'
 versions.okhttp = '4.2.0'
 versions.logging_interceptor = '3.5.0'
+versions.room = '1.1.1'
 
 ext.versions = versions
 
@@ -49,6 +50,11 @@ deps.auto_service = "com.google.auto.service:auto-service:${versions.auto_servic
 deps.fastjson = "com.alibaba:fastjson:${versions.fastjson}"
 deps.okhttp = "com.squareup.okhttp3:okhttp:${versions.okhttp}"
 deps.logging_interceptor = "com.squareup.okhttp3:logging-interceptor:${versions.logging_interceptor}"
+
+deps.room_runtime = "android.arch.persistence.room:runtime:${versions.room}"
+deps.room_lifecycle_extensions = "android.arch.lifecycle:extensions:${versions.room}"
+deps.room_compiler = "android.arch.persistence.room:compiler:${versions.room}"
+deps.room_lifecycle_compiler = "android.arch.lifecycle:compiler:${versions.room}"
 
 ext.deps = deps
 

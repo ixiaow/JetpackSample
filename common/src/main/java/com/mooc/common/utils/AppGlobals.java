@@ -1,5 +1,6 @@
-package com.mooc.ppjoke.utils;
+package com.mooc.common.utils;
 
+import android.annotation.SuppressLint;
 import android.app.Application;
 
 import java.lang.reflect.InvocationTargetException;
@@ -11,7 +12,7 @@ public class AppGlobals {
     public static Application getApplication() {
         if (application == null) {
             try {
-                Class<?> clazz = Class.forName("android.app.ActivityThread");
+                @SuppressLint("PrivateApi") Class<?> clazz = Class.forName("android.app.ActivityThread");
                 Method currentApplication = clazz.getMethod("currentApplication");
                 currentApplication.setAccessible(true);
                 application = (Application) currentApplication.invoke(null);

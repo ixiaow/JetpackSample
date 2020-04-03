@@ -12,9 +12,9 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 
+import com.mooc.common.utils.Logs;
 import com.mooc.navannotation.FragmentDestination;
 import com.mooc.ppjoke.R;
-import com.mooc.ppjoke.utils.Logs;
 
 @FragmentDestination(pageUrl = "main/tabs/find", asStarter = true)
 public class FindFragment extends Fragment {

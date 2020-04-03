@@ -1,5 +1,7 @@
 package com.mooc.ppjoke.utils;
 
+import com.mooc.common.utils.AppGlobals;
+
 public class PxUtils {
 
     public static int dp2px(float dpValue) {
