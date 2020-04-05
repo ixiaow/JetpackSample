@@ -1,80 +1,149 @@
 package com.mooc.network.http;
 
-import android.text.TextUtils;
 
+import android.text.TextUtils;
+import android.util.Log;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
 
+import com.alibaba.fastjson.TypeReference;
+import com.mooc.common.utils.Logs;
 import com.mooc.network.ApiResponse;
+import com.mooc.network.HttpObserver;
+import com.mooc.network.http.okhttp.OkHttpEngine;
 
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.List;
 import java.util.Map;
 
 public class LiveHttp {
-    //默认引擎
-    private static IHttpEngine sDefaultHttp = new OkHttpEngine();
-    // 引擎参数的配置
-    private Options engineOptions;
-
+    private static IHttpEngine sHttpEngine = new OkHttpEngine();
+    private Config mConfig;
     private static String sBaseUrl;
 
     /**
-     * 初始化引擎
+     * 初始化http配置信息
+     *
+     * @param baseUrl    http请求的baseUrl
+     * @param httpEngine http请求实现的引擎
      */
-    public static void init(String baseUrl) {
+    public static void init(@NonNull String baseUrl, @Nullable IHttpEngine httpEngine) {
         sBaseUrl = baseUrl;
+        if (httpEngine != null) {
+            sHttpEngine = httpEngine;
+        }
+    }
+
+    private LiveHttp() {
+        mConfig = new Config();
+        mConfig.baseUrl = sBaseUrl;
     }
 
     /**
-     * HttpUtils 构造方法
+     * 创建一个http
      */
-    private LiveHttp() {
-        engineOptions = new Options();
-        engineOptions.baseUrl = sBaseUrl;
-    }
-
     public static LiveHttp create() {
         return new LiveHttp();
     }
 
     /**
-     * 设置访问的url
+     * 设置业务url
      *
-     * @param url url
-     * @return HttpsUtils
+     * @param url 设置业务url
      */
     public LiveHttp url(String url) {
-        this.engineOptions.url = url;
+        mConfig.url = url;
+        return this;
+    }
+
+    /**
+     * 设置业务url
+     */
+    public LiveHttp get() {
+        mConfig.method = Config.GET;
+        return this;
+    }
+
+    /**
+     * 设置post请求方式
+     */
+    public LiveHttp post() {
+        mConfig.method = Config.POST;
+        mConfig.setPostType(FormData.FORM_DATA);
+        return this;
+    }
+
+    /**
+     * 设置post请求方式
+     */
+    public LiveHttp post(FormData formData) {
+        mConfig.method = Config.POST;
+        mConfig.setPostType(formData);
+        return this;
+    }
+
+    /**
+     * 设置post请求方式
+     */
+    public LiveHttp post(String json) {
+        mConfig.method = Config.POST;
+        mConfig.setPostType(FormData.JSON_DATA);
+        mConfig.addParam(Config.JSON_KEY, json);
         return this;
     }
 
 
     /**
-     * 设置tag 主要用来取消请求
-     *
-     * @param object tag
-     * @return HttpUtils
+     * 设置缓存策略
      */
-    public LiveHttp tag(Object object) {
-        engineOptions.tag = object;
+    public LiveHttp cacheStrategy(@Config.CacheStrategy int cacheStrategy) {
+        mConfig.cacheStrategy = cacheStrategy;
         return this;
     }
 
-    public LiveHttp cacheStrategy(@Options.CacheStrategy int strategy) {
-        engineOptions.cacheStrategy = strategy;
+    /**
+     * 设置tag标志，可以根据tag取消请求
+     */
+    public LiveHttp tag(Object tag) {
+        mConfig.tag = tag;
         return this;
     }
+
+    /**
+     * 设置解析的数据类型
+     */
+    public LiveHttp registerType(Type type) {
+        mConfig.type = type;
+        return this;
+    }
+
+    public LiveHttp registerType(TypeToken typeReference) {
+        mConfig.type = typeReference.getType();
+        return this;
+    }
+
+    /**
+     * 设置当前方式是同步的还是异步
+     */
+    public LiveHttp isAsync(boolean isAsync) {
+        mConfig.isAsync = isAsync;
+        return this;
+    }
+
 
     /**
      * 添加请求参数
      *
      * @param key   请求参数key
      * @param value 请求参数值
-     * @return HttpUtils
      */
     public LiveHttp addParam(String key, Object value) {
-        this.engineOptions.addParam(key, value);
+        this.mConfig.addParam(key, value);
         return this;
     }
 
@@ -82,10 +151,9 @@ public class LiveHttp {
      * 添加请求参数
      *
      * @param params map参数集合
-     * @return HttpUtils
      */
     public LiveHttp addParams(Map<String, Object> params) {
-        this.engineOptions.addParams(params);
+        this.mConfig.addParams(params);
         return this;
     }
 
@@ -93,10 +161,9 @@ public class LiveHttp {
      * 添加请求header
      *
      * @param headers map 头部集合
-     * @return HttpUtils
      */
     public LiveHttp addHeaders(Map<String, String> headers) {
-        this.engineOptions.addHeaders(headers);
+        this.mConfig.addHeaders(headers);
         return this;
     }
 
@@ -105,79 +172,35 @@ public class LiveHttp {
      *
      * @param key   key
      * @param value value
-     * @return HttpUtils
      */
     public LiveHttp addHeader(String key, String value) {
-        this.engineOptions.addHeader(key, value);
-        return this;
-    }
-
-
-    /**
-     * 当前请求为get 方法
-     *
-     * @return HttpUtils
-     */
-    public LiveHttp get() {
-        this.engineOptions.methodType = Options.GET;
+        this.mConfig.addHeader(key, value);
         return this;
     }
 
     /**
-     * 设置当前请求为post 方法
-     *
-     * @param formData 设置post的内容请求方式
-     * @return HttpUtils
+     * 开始订阅请求网络数据
      */
-    public LiveHttp post(FormData formData) {
-        //默认设置
-        this.engineOptions.methodType = Options.POST;
-        this.engineOptions.addHeader(Options.CONTENT_TYPE, formData.getValue());
-        return this;
-    }
-
-
-    /**
-     * 设置当前请求为post 方法
-     *
-     * @return
-     */
-    public LiveHttp post() {
-        //默认设置
-        this.engineOptions.methodType = Options.POST;
-        this.engineOptions.addHeader(Options.CONTENT_TYPE, FormData.FORM_DATA.getValue());
-        return this;
-    }
-
-    /**
-     * 设置当前请求为post 方法
-     *
-     * @return
-     */
-    public LiveHttp registerType(Type type) {
-        engineOptions.type = type;
-        return this;
-    }
-
-    public <T> void observe(LifecycleOwner owner, Observer<ApiResponse<T>> observer) {
+    public <T> void observe(LifecycleOwner owner, HttpObserver<ApiResponse<T>> observer) {
+        Type type = observer.getType();
+        mConfig.type = type;
+        Logs.e("type: " + type);
         LiveData<ApiResponse<T>> liveData = execute();
         liveData.observe(owner, observer);
     }
 
+    /**
+     * 开始请求网络数据
+     */
     public <T> LiveData<ApiResponse<T>> execute() {
-        if (TextUtils.isEmpty(engineOptions.url())) {
+        if (TextUtils.isEmpty(mConfig.url())) {
             throw new IllegalArgumentException("请求路径不能为空");
         }
-        return sDefaultHttp.execute(engineOptions);
+        return sHttpEngine.execute(mConfig);
     }
 
-
-    public LiveHttp async(boolean isAsync) {
-        engineOptions.isAsync = isAsync;
-        return this;
+    public static void cancel(Object tag) {
+        sHttpEngine.cancel(tag);
     }
 
-    public static void cancel(Object object) {
-        sDefaultHttp.cancel(object);
-    }
 }

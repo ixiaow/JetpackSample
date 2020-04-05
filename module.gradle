@@ -38,4 +38,5 @@ dependencies {
     implementation deps.room_lifecycle_extensions
     annotationProcessor deps.room_compiler
     annotationProcessor deps.room_lifecycle_compiler
+    implementation deps.fastjson
 }

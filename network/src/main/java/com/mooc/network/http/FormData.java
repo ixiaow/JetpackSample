@@ -1,5 +1,7 @@
 package com.mooc.network.http;
 
+import android.util.Pair;
+
 /**
  * post表单提交的几种方式
  */
@@ -16,5 +18,9 @@ public enum FormData {
 
     public String getValue() {
         return value;
+    }
+
+    public Pair<String, String> getHeader() {
+        return new Pair<>("Content-Type", getValue());
     }
 }

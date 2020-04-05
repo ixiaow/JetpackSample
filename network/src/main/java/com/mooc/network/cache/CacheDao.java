@@ -6,6 +6,7 @@ import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
+import androidx.room.Update;
 
 @Dao
 public interface CacheDao {
@@ -17,5 +18,4 @@ public interface CacheDao {
 
     @Query("Select * from cache where `key`=:key")
     Cache query(@NonNull String key);
-
 }

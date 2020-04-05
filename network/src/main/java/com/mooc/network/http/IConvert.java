@@ -2,11 +2,12 @@ package com.mooc.network.http;
 
 import androidx.annotation.NonNull;
 
+import com.mooc.network.ApiResponse;
+
 import java.lang.reflect.Type;
 
-import okhttp3.Response;
+public interface IConvert<T, R> {
 
-public interface IConvert<T> {
     @NonNull
-    T convert(@NonNull Response response, @NonNull Type type);
+    ApiResponse<R> convert(@NonNull T response, @NonNull Type type);
 }

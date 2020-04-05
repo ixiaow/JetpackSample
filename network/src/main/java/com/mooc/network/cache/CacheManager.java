@@ -5,8 +5,10 @@ import androidx.annotation.Nullable;
 
 import com.mooc.common.utils.IOUtils;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
@@ -40,8 +42,31 @@ public class CacheManager {
         CacheDatabase.get().getCacheDao().delete(cache);
     }
 
-    public Cache readCache() {
+    @Nullable
+    public <T> T readCache(@NonNull String cacheKey) {
+        Cache cache = CacheDatabase.get().getCacheDao().query(cacheKey);
+        if (cache == null || cache.data == null) {
+            return null;
+        }
+        return toObject(cache.data);
 
+    }
+
+    @SuppressWarnings("unchecked")
+    @Nullable
+    private <T> T toObject(byte[] data) {
+        ByteArrayInputStream bais = null;
+        ObjectInputStream ois = null;
+        try {
+            bais = new ByteArrayInputStream(data);
+            ois = new ObjectInputStream(bais);
+            return (T) ois.readObject();
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+        } finally {
+            IOUtils.closeQuietly(ois, bais);
+        }
+        return null;
     }
 
     /**

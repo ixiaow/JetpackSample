@@ -21,20 +21,20 @@ import java.util.Map;
 
 public class NavGraphBuilder {
 
-    public static void build(FragmentActivity context, int containerId, NavController controller) {
+    public static void build(FragmentActivity activity, int containerId, NavController controller) {
 
         NavigatorProvider provider = controller.getNavigatorProvider();
         ActivityNavigator activityNavigator = provider.getNavigator(ActivityNavigator.class);
 
         // 此处很重要，需要通过containerId找到NavHostFragment
-        Fragment fragment = context.getSupportFragmentManager().findFragmentById(containerId);
+        Fragment fragment = activity.getSupportFragmentManager().findFragmentById(containerId);
         if (fragment == null) {
             throw new IllegalArgumentException("not found fragment by containerId: " + containerId);
         }
         // 此处的fragmentManager 只能是 childFragmentManager,不然返回按钮会引起返回栈的操作
         // 关于此处可以查看NavHostFragment中的createFragmentNavigator()
         FragmentManager childFragmentManager = fragment.getChildFragmentManager();
-        FixFragmentNavigator fragmentNavigator = new FixFragmentNavigator(context,
+        FixFragmentNavigator fragmentNavigator = new FixFragmentNavigator(activity,
                 childFragmentManager, containerId);
         provider.addNavigator(fragmentNavigator);
 
