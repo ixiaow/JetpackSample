@@ -26,19 +26,20 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
     }
 
+    dataBinding {
+        enabled true
+    }
+
 }
 
 dependencies {
     implementation deps.appcompat
     implementation deps.constraintlayout
-    implementation 'androidx.appcompat:appcompat:1.1.0'
-    implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
     testImplementation deps.junit
     androidTestImplementation deps.ext_junit
     androidTestImplementation deps.espresso_core
     implementation deps.fastjson
 
-    implementation deps.material
     implementation deps.navigtation_fragment
     implementation deps.navigation_ui
     implementation deps.lifecycle_extensions
@@ -46,5 +47,7 @@ dependencies {
     implementation project(":navannotation")
     annotationProcessor project(":navcompiler")
     implementation project(":network")
-    implementation project(path: ':common')
+    implementation project(':common')
+
+    implementation deps.paging
 }

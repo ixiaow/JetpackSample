@@ -103,4 +103,13 @@ public class AppBottomBar extends BottomNavigationView {
         }
         return destination.id;
     }
+
+    public void setSelectedItem(int position) {
+        if (!tabs.isEmpty() && position < tabs.size()) {
+            int itemId = getItemId(tabs.get(position));
+            if (itemId > 0) {
+                setSelectedItemId(itemId);
+            }
+        }
+    }
 }

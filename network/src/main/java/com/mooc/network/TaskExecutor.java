@@ -1,6 +1,8 @@
 package com.mooc.network;
 
 import android.annotation.SuppressLint;
+import android.os.Handler;
+import android.os.Looper;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -11,6 +13,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class TaskExecutor {
     private final ExecutorService mDiskIO;
+    private volatile Handler mHandler;
+    private Object lock = new Object();
 
     private static final class Holder {
         private static final TaskExecutor sInstance = new TaskExecutor();
@@ -26,6 +30,21 @@ public class TaskExecutor {
 
     public void executeOnDiskIO(Runnable runnable) {
         mDiskIO.execute(runnable);
+    }
+
+    public void postToMain(Runnable runnable) {
+        if (mHandler == null) {
+            synchronized (lock) {
+                if (mHandler == null) {
+                    mHandler = new Handler(Looper.getMainLooper());
+                }
+            }
+        }
+        mHandler.post(runnable);
+    }
+
+    public boolean isMainThread() {
+        return Looper.getMainLooper().getThread() == Thread.currentThread();
     }
 
     private ThreadFactory threadFactory = new ThreadFactory() {

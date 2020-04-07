@@ -4,11 +4,12 @@ import android.util.Pair;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import com.mooc.common.utils.Logs;
 import com.mooc.network.ApiResponse;
 import com.mooc.network.SimpleX509TrustManager;
+import com.mooc.network.TaskExecutor;
 import com.mooc.network.cache.CacheManager;
 import com.mooc.network.http.Config;
 import com.mooc.network.http.FormData;
@@ -66,7 +67,7 @@ public class OkHttpEngine implements IHttpEngine {
             SSLContext sslContext = SSLContext.getInstance("SSL");
             sslContext.init(null, trustManagers, new SecureRandom());
             HttpsURLConnection.setDefaultSSLSocketFactory(sslContext.getSocketFactory());
-            HttpsURLConnection.setDefaultHostnameVerifier((hostname, session) -> false);
+            HttpsURLConnection.setDefaultHostnameVerifier((hostname, session) -> true);
         } catch (NoSuchAlgorithmException | KeyManagementException e) {
             e.printStackTrace();
         }
@@ -74,21 +75,14 @@ public class OkHttpEngine implements IHttpEngine {
 
     @NonNull
     @Override
-    public <T> LiveData<ApiResponse<T>> execute(@NonNull Config config) {
+    public <T> void execute(@NonNull Config config, @NonNull MutableLiveData<ApiResponse<T>> liveData) {
         Request request = generateRequest(config);
         Call call = OK_HTTP_CLIENT.newCall(request);
-        return execute(call, config);
-    }
-
-    @NonNull
-    private <T> LiveData<ApiResponse<T>> execute(@NonNull Call call, @NonNull Config config) {
-        MutableLiveData<ApiResponse<T>> liveData = new MutableLiveData<>();
         if (!config.isAsync) {
             execute(call, config, liveData);
         } else {
             enqueue(call, config, liveData);
         }
-        return liveData;
     }
 
     /**
@@ -97,13 +91,21 @@ public class OkHttpEngine implements IHttpEngine {
     @SuppressWarnings("unchecked")
     private <T> void execute(Call call, Config config, MutableLiveData<ApiResponse<T>> liveData) {
         ApiResponse<T> apiResponse;
-
+        Logs.d("execute before cache: " + Thread.currentThread().getName());
+        // 只访问本地数据
         if (config.cacheStrategy == Config.CACHE_ONLY) {
             apiResponse = readCache(call.request().url().toString());
             liveData.postValue(apiResponse);
             return;
         }
 
+        // 先访问本地数据，然后再发起网络请求
+        if (config.cacheStrategy == Config.CACHE_FIRST) {
+            apiResponse = readCache(call.request().url().toString());
+            liveData.postValue(apiResponse);
+        }
+
+        Logs.d("execute current thread: " + Thread.currentThread().getName());
         try {
             Response response = call.execute();
             IConvert<Response, T> convert = ConvertFactory.create();
@@ -125,35 +127,22 @@ public class OkHttpEngine implements IHttpEngine {
         }
     }
 
-    private <T> void saveCache(String cacheKey, ApiResponse<T> response) {
-        if (response.data == null) {
-            CacheManager.get().delete(cacheKey);
-        }
-
-        if (response.data instanceof Void) {
-            return;
-        }
-
-        if (!(response.data instanceof Serializable)) {
-            throw new IllegalArgumentException(response.data + " must implement Serializable or void");
-        }
-        CacheManager.get().save(cacheKey, (Serializable) response.data);
-    }
-
-    private <T> ApiResponse<T> readCache(String cacheKey) {
-        ApiResponse<T> apiResponse = new ApiResponse<>();
-        apiResponse.status = 304;
-        apiResponse.data = CacheManager.get().readCache(cacheKey);
-        return apiResponse;
-    }
-
-
     private <T> void enqueue(Call call, Config config, MutableLiveData<ApiResponse<T>> liveData) {
-
+        // 异步先发起网络请求
         if (config.cacheStrategy == Config.CACHE_ONLY) {
-            ApiResponse<T> apiResponse = readCache(call.request().url().toString());
-            liveData.postValue(apiResponse);
+            TaskExecutor.get().executeOnDiskIO(() -> {
+                ApiResponse<T> apiResponse = readCache(call.request().url().toString());
+                liveData.postValue(apiResponse);
+            });
             return;
+        }
+
+        // 先访问本地数据，然后再发起网络请求
+        if (config.cacheStrategy == Config.CACHE_FIRST) {
+            TaskExecutor.get().executeOnDiskIO(() -> {
+                ApiResponse<T> apiResponse = readCache(call.request().url().toString());
+                liveData.postValue(apiResponse);
+            });
         }
 
         call.enqueue(new Callback() {
@@ -182,6 +171,29 @@ public class OkHttpEngine implements IHttpEngine {
                 }
             }
         });
+    }
+
+    private <T> void saveCache(String cacheKey, ApiResponse<T> response) {
+        if (response.data == null) {
+            CacheManager.get().delete(cacheKey);
+        }
+
+        if (response.data instanceof Void) {
+            return;
+        }
+
+        if (!(response.data instanceof Serializable)) {
+            throw new IllegalArgumentException(response.data + " must implement Serializable or void");
+        }
+        CacheManager.get().save(cacheKey, (Serializable) response.data);
+    }
+
+    private <T> ApiResponse<T> readCache(String cacheKey) {
+        ApiResponse<T> apiResponse = new ApiResponse<>();
+        apiResponse.status = 304;
+        apiResponse.data = CacheManager.get().readCache(cacheKey);
+        Logs.d("cache: " + cacheKey + "=======");
+        return apiResponse;
     }
 
 

@@ -63,13 +63,13 @@ public class FixFragmentNavigator extends FragmentNavigator {
             className = context.getPackageName() + className;
         }
 
-
         final FragmentTransaction ft = manager.beginTransaction();
 
         Fragment primaryNavigationFragment = manager.getPrimaryNavigationFragment();
         if (primaryNavigationFragment != null) {
             ft.hide(primaryNavigationFragment);
         }
+
         String tag = String.valueOf(destination.getId());
         Fragment fragment = manager.findFragmentByTag(tag);
         if (fragment != null) {
@@ -80,7 +80,6 @@ public class FixFragmentNavigator extends FragmentNavigator {
             fragment.setArguments(args);
             ft.add(containerId, fragment, tag);
         }
-
 
         int enterAnim = navOptions != null ? navOptions.getEnterAnim() : -1;
         int exitAnim = navOptions != null ? navOptions.getExitAnim() : -1;
@@ -115,10 +114,14 @@ public class FixFragmentNavigator extends FragmentNavigator {
         }
 
         final boolean initialNavigation = mBackStack.isEmpty();
+        Integer peekLast = null;
+        if (!initialNavigation) {
+            peekLast = mBackStack.peekLast();
+        }
         // TODO Build first class singleTop behavior for fragments
         final boolean isSingleTopReplacement = navOptions != null && !initialNavigation
                 && navOptions.shouldLaunchSingleTop()
-                && mBackStack.peekLast() == destId;
+                && peekLast != null && peekLast == destId;
 
         boolean isAdded;
         if (initialNavigation) {
@@ -131,7 +134,7 @@ public class FixFragmentNavigator extends FragmentNavigator {
                 // remove it from the back stack and put our replacement
                 // on the back stack in its place
                 manager.popBackStack(
-                        generateBackStackName(mBackStack.size(), mBackStack.peekLast()),
+                        generateBackStackName(mBackStack.size(), peekLast),
                         FragmentManager.POP_BACK_STACK_INCLUSIVE);
                 ft.addToBackStack(generateBackStackName(mBackStack.size(), destId));
             }

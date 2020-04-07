@@ -2,23 +2,20 @@ package com.mooc.network.http;
 
 
 import android.text.TextUtils;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
-import androidx.lifecycle.Observer;
+import androidx.lifecycle.MutableLiveData;
 
-import com.alibaba.fastjson.TypeReference;
 import com.mooc.common.utils.Logs;
 import com.mooc.network.ApiResponse;
 import com.mooc.network.HttpObserver;
+import com.mooc.network.TaskExecutor;
 import com.mooc.network.http.okhttp.OkHttpEngine;
 
-import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.List;
 import java.util.Map;
 
 public class LiveHttp {
@@ -185,9 +182,16 @@ public class LiveHttp {
         Type type = observer.getType();
         mConfig.type = type;
         Logs.e("type: " + type);
-        LiveData<ApiResponse<T>> liveData = execute();
-        liveData.observe(owner, observer);
+
+        if (TextUtils.isEmpty(mConfig.url())) {
+            throw new IllegalArgumentException("请求路径不能为空");
+        }
+
+        MutableLiveData<ApiResponse<T>> liveData = new MutableLiveData<>();
+        TaskExecutor.get().postToMain(() -> liveData.observe(owner, observer));
+        sHttpEngine.execute(mConfig, liveData);
     }
+
 
     /**
      * 开始请求网络数据
@@ -196,7 +200,9 @@ public class LiveHttp {
         if (TextUtils.isEmpty(mConfig.url())) {
             throw new IllegalArgumentException("请求路径不能为空");
         }
-        return sHttpEngine.execute(mConfig);
+        MutableLiveData<ApiResponse<T>> liveData = new MutableLiveData<>();
+        sHttpEngine.execute(mConfig, liveData);
+        return liveData;
     }
 
     public static void cancel(Object tag) {

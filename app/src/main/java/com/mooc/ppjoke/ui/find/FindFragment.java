@@ -16,7 +16,7 @@ import com.mooc.common.utils.Logs;
 import com.mooc.navannotation.FragmentDestination;
 import com.mooc.ppjoke.R;
 
-@FragmentDestination(pageUrl = "main/tabs/find", asStarter = true)
+@FragmentDestination(pageUrl = "main/tabs/find")
 public class FindFragment extends Fragment {
 
     private HomeViewModel homeViewModel;
@@ -26,8 +26,8 @@ public class FindFragment extends Fragment {
         Logs.d("onCreateView");
         homeViewModel =
                 ViewModelProviders.of(this).get(HomeViewModel.class);
-        View root = inflater.inflate(R.layout.fragment_home, container, false);
-        final TextView textView = root.findViewById(R.id.text_home);
+        View root = inflater.inflate(R.layout.fragment_dashboard, container, false);
+        final TextView textView = root.findViewById(R.id.text_dashboard);
         homeViewModel.getText().observe(getViewLifecycleOwner(), new Observer<String>() {
             @Override
             public void onChanged(@Nullable String s) {

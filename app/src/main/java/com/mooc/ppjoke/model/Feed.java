@@ -1,6 +1,7 @@
 package com.mooc.ppjoke.model;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 public class Feed implements Serializable {
 
@@ -40,4 +41,27 @@ public class Feed implements Serializable {
     public Comment topComment;
     public Ugc ugc;
 
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Feed feed = (Feed) o;
+        return id == feed.id &&
+                itemId == feed.itemId &&
+                itemType == feed.itemType &&
+                createTime == feed.createTime &&
+                duration == feed.duration &&
+                authorId == feed.authorId &&
+                width == feed.width &&
+                height == feed.height &&
+                Objects.equals(feeds_text, feed.feeds_text) &&
+                Objects.equals(activityIcon, feed.activityIcon) &&
+                Objects.equals(activityText, feed.activityText) &&
+                Objects.equals(url, feed.url) &&
+                Objects.equals(cover, feed.cover) &&
+                Objects.equals(author, feed.author) &&
+                Objects.equals(topComment, feed.topComment) &&
+                Objects.equals(ugc, feed.ugc);
+    }
 }

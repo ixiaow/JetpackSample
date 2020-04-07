@@ -1,1 +1,7 @@
 apply from: '../module.gradle'
+
+dependencies {
+    api deps.smart_refresh_layout
+    api deps.smart_refresh_header
+    api deps.material
+}

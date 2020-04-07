@@ -6,6 +6,7 @@ import androidx.annotation.NonNull;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 public class UrlCreator {
@@ -39,7 +40,8 @@ public class UrlCreator {
                 sb.append("&");
             }
             try {
-                String value = URLEncoder.encode(String.valueOf(entry.getValue()), "utf-8");
+                String value = URLEncoder.encode(String.valueOf(entry.getValue()),
+                        StandardCharsets.UTF_8.toString());
                 sb.append(entry.getKey()).append("=").append(value);
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
