@@ -29,6 +29,8 @@ versions.logging_interceptor = '3.5.0'
 versions.room = '1.1.1'
 versions.smart_refresh_layout = '1.1.0'
 versions.paging = '2.1.0'
+versions.glide = '4.9.0'
+versions.glide_transform = '4.0.0'
 
 ext.versions = versions
 
@@ -64,6 +66,11 @@ deps.smart_refresh_header = "com.scwang.smartrefresh:SmartRefreshHeader:${versio
 
 //paging分页组件
 deps.paging = "androidx.paging:paging-runtime:${versions.paging}"
+
+// 图片加载
+deps.glide = "com.github.bumptech.glide:glide:${versions.glide}"
+deps.glide_transformation = "jp.wasabeef:glide-transformations:${versions.glide_transform}"
+deps.glide_compiler = "com.github.bumptech.glide:compiler:${versions.glide}"
 
 ext.deps = deps
 

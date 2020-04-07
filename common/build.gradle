@@ -4,4 +4,7 @@ dependencies {
     api deps.smart_refresh_layout
     api deps.smart_refresh_header
     api deps.material
+    api deps.glide
+    api deps.glide_transformation
+    annotationProcessor deps.glide_compiler
 }
