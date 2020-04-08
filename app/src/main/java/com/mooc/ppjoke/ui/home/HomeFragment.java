@@ -5,6 +5,8 @@ import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.lifecycle.Observer;
+import androidx.paging.PagedList;
 import androidx.paging.PagedListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -18,11 +20,11 @@ public class HomeFragment extends AbsListFragment<Integer, Feed, HomeViewModel> 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
+        viewModel.getCacheLiveData().observe(getViewLifecycleOwner(), this::submitList);
     }
 
     @Override
     public PagedListAdapter<Feed, ? extends RecyclerView.ViewHolder> getAdapter() {
-        return new HomePageAdapter();
+        return new HomePageAdapter(requireActivity());
     }
 }

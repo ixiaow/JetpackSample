@@ -24,4 +24,14 @@
         <item name="android:elevation">0dp</item>
     </style>
 
+    <declare-styleable name="ViewOutlineStrategy">
+        <attr name="clip_radius" format="dimension" />
+        <attr name="clip_side" format="flags">
+            <flag name="ALL" value="0" />
+            <flag name="LEFT" value="1" />
+            <flag name="TOP" value="2" />
+            <flag name="RIGHT" value="3" />
+            <flag name="BOTTOM" value="4" />
+        </attr>
+    </declare-styleable>
 </resources>

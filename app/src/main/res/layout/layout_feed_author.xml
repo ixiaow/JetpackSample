@@ -17,10 +17,12 @@
         android:paddingLeft="@dimen/dp_16"
         android:paddingRight="@dimen/dp_16">
 
-        <ImageView
+        <com.mooc.common.view.PPImageView
             android:id="@+id/avatar"
             android:layout_width="@dimen/dp_40"
             android:layout_height="@dimen/dp_40"
+            app:image_url="@{user.avatar}"
+            app:is_circle="@{true}"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             tools:src="@mipmap/ic_launcher" />

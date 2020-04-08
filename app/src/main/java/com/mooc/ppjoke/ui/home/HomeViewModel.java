@@ -1,8 +1,10 @@
 package com.mooc.ppjoke.ui.home;
 
 import androidx.annotation.NonNull;
+import androidx.lifecycle.MutableLiveData;
 import androidx.paging.DataSource;
 import androidx.paging.ItemKeyedDataSource;
+import androidx.paging.PagedList;
 
 import com.mooc.common.utils.Logs;
 import com.mooc.network.ApiResponse;
@@ -16,6 +18,12 @@ import java.util.Collections;
 import java.util.List;
 
 public class HomeViewModel extends AbsViewModel<Integer, Feed> {
+    private final MutableLiveData<PagedList<Feed>> cacheLiveData = new MutableLiveData<>();
+
+
+    public MutableLiveData<PagedList<Feed>> getCacheLiveData() {
+        return cacheLiveData;
+    }
 
     @Override
     public DataSource<Integer, Feed> createDataSource() {
@@ -58,10 +66,20 @@ public class HomeViewModel extends AbsViewModel<Integer, Feed> {
                     @Override
                     public void onChanged(ApiResponse<List<Feed>> apiResponse) {
                         Logs.d("apiResponse: " + apiResponse);
-                        callback.onResult(apiResponse.data == null ? Collections.emptyList() : apiResponse.data);
+                        if (apiResponse.isCached() && apiResponse.data != null) {
+                            PagedList<Feed> cacheList = convertCacheList(apiResponse.data);
+                            cacheLiveData.postValue(cacheList);
+                        } else {
+                            callback.onResult(apiResponse.data == null ? Collections.emptyList() : apiResponse.data);
+                        }
                         getBoundaryData().postValue(apiResponse.data != null && apiResponse.data.size() > 0);
                     }
                 });
+    }
+
+    private PagedList<Feed> convertCacheList(List<Feed> data) {
+
+        return null;
     }
 
     @Override

@@ -4,6 +4,8 @@ import java.io.Serializable;
 import java.util.Objects;
 
 public class Feed implements Serializable {
+    public static final int IMAGE_TYPE = 1;
+    public static final int VIDEO_TYPE = 2;
 
     /**
      * id : 484

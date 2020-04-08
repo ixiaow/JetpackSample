@@ -20,7 +20,7 @@ import com.mooc.ppjoke.model.Destination;
 import com.mooc.ppjoke.model.MainTabs;
 import com.mooc.ppjoke.model.MainTabs.Tab;
 import com.mooc.ppjoke.utils.AppConfig;
-import com.mooc.ppjoke.utils.PxUtils;
+import com.mooc.common.utils.PxUtils;
 
 import java.util.ArrayList;
 import java.util.List;

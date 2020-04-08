@@ -1,6 +1,8 @@
 package com.mooc.network;
 
 public class ApiResponse<T> {
+    public static final int CACHE_CODE = 304;
+
     public int status;
     public String message;
     public T data;
@@ -17,5 +19,9 @@ public class ApiResponse<T> {
                 ", message='" + message + '\'' +
                 ", data=" + data +
                 '}';
+    }
+
+    public boolean isCached() {
+        return status == CACHE_CODE;
     }
 }

@@ -14,7 +14,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class TaskExecutor {
     private final ExecutorService mDiskIO;
     private volatile Handler mHandler;
-    private Object lock = new Object();
+    private final Object lock = new Object();
 
     private static final class Holder {
         private static final TaskExecutor sInstance = new TaskExecutor();

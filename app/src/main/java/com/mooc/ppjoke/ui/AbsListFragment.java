@@ -105,7 +105,7 @@ public abstract class AbsListFragment<Key, Value, VM extends AbsViewModel<Key, V
         emptyView.setVisibility(hasData ? View.GONE : View.VISIBLE);
     }
 
-    private void submitList(PagedList<Value> values) {
+    protected void submitList(PagedList<Value> values) {
         boolean hasData = values.size() > 0;
         if (hasData) {
             adapter.submitList(values);
