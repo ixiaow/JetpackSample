@@ -1,4 +1,4 @@
-package com.mooc.ppjoke.ui;
+package com.mooc.ppjoke.base;
 
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -83,7 +83,7 @@ public abstract class AbsListFragment<Key, Value, VM extends AbsViewModel<Key, V
             try {
                 viewModel = (VM) modelClass.newInstance();
                 viewModel.setLifeOwner(getViewLifecycleOwner());
-                viewModel.getPageData().observe(getViewLifecycleOwner(), this::submitList);
+                viewModel.getResultData().observe(getViewLifecycleOwner(), this::submitList);
                 viewModel.getBoundaryData().observe(getViewLifecycleOwner(), this::finishRefresh);
             } catch (IllegalAccessException | java.lang.InstantiationException e) {
                 e.printStackTrace();
@@ -118,7 +118,7 @@ public abstract class AbsListFragment<Key, Value, VM extends AbsViewModel<Key, V
 
     @Override
     public void onLoadMore(@NonNull RefreshLayout refreshLayout) {
-
+        viewModel.loadAfter(adapter.getCurrentList());
     }
 
     @Override

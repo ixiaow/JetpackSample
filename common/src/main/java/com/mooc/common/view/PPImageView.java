@@ -31,9 +31,16 @@ public class PPImageView extends AppCompatImageView {
         super(context, attrs, defStyleAttr);
     }
 
+    public void setImageUrl(String imageUrl) {
+        setImageUrl(this, imageUrl, false);
+    }
 
-    @BindingAdapter({"image_url", "is_circle"})
-    public void setImageUrl(PPImageView view, String imageUrl, Boolean isCircle) {
+    public void setBlurImageUrl(String imageUrl, int radius) {
+        setBlurImageUrl(this, imageUrl, radius);
+    }
+
+    @BindingAdapter(value = {"image_url", "is_circle"}, requireAll = false)
+    public static void setImageUrl(PPImageView view, String imageUrl, Boolean isCircle) {
         GlideRequest<Drawable> request = GlideApp.with(view).load(imageUrl);
         ViewGroup.LayoutParams layoutParams = view.getLayoutParams();
         if (layoutParams != null && layoutParams.width > 0 && layoutParams.height > 0) {
@@ -84,14 +91,17 @@ public class PPImageView extends AppCompatImageView {
         // 宽度大于高度时，宽度为最大宽度，高度自适应
         if (width > height) {
             finalWidth = maxWidth;
-            finalHeight = (int) (height * (1.0 * width / finalWidth));
+            finalHeight = (int) (height / (1.0 * width / finalWidth));
         } else {
             // 高度大于宽度时，高度为最大高度，宽度自适应
             finalHeight = maxHeight;
-            finalWidth = (int) (width * (1.0f * height / finalHeight));
+            finalWidth = (int) (width / (1.0f * height / finalHeight));
         }
 
         ViewGroup.LayoutParams layoutParams = getLayoutParams();
+        layoutParams.width = finalWidth;
+        layoutParams.height = finalHeight;
+
         if (layoutParams instanceof FrameLayout.LayoutParams) {
             ((FrameLayout.LayoutParams) layoutParams).leftMargin = width > height ? 0 : PxUtils.dp2px(marginLeft);
         } else if (layoutParams instanceof LinearLayout.LayoutParams) {
@@ -103,7 +113,9 @@ public class PPImageView extends AppCompatImageView {
 
     @BindingAdapter({"blur_url", "radius"})
     public static void setBlurImageUrl(PPImageView imageView, String blurImageUrl, int radius) {
-        GlideApp.with(imageView).load(blurImageUrl)
+        GlideApp.with(imageView)
+                .load(blurImageUrl)
+                .override(radius)
                 .into(new ImageViewTarget<Drawable>(imageView) {
                     @Override
                     protected void setResource(@Nullable Drawable resource) {

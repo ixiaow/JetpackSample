@@ -5,26 +5,95 @@ import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.lifecycle.Observer;
-import androidx.paging.PagedList;
 import androidx.paging.PagedListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.mooc.navannotation.FragmentDestination;
+import com.mooc.ppjoke.base.AbsListFragment;
 import com.mooc.ppjoke.model.Feed;
-import com.mooc.ppjoke.ui.AbsListFragment;
+import com.mooc.ppjoke.view.player.PageListPlayDetector;
 
 @FragmentDestination(pageUrl = "main/tabs/home", asStarter = true)
 public class HomeFragment extends AbsListFragment<Integer, Feed, HomeViewModel> {
 
+    private PageListPlayDetector pageListPlayDetector;
+    private boolean shouldPause;
+    private String feedType;
+
+    public static HomeFragment newInstance(String feedType) {
+
+        Bundle args = new Bundle();
+        HomeFragment fragment = new HomeFragment();
+        args.putString("feedType", feedType);
+        fragment.setArguments(args);
+        return fragment;
+    }
+
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        viewModel.getCacheLiveData().observe(getViewLifecycleOwner(), this::submitList);
+        pageListPlayDetector = new PageListPlayDetector(getViewLifecycleOwner(), recyclerView);
+        pageListPlayDetector.setCategory(feedType);
     }
 
     @Override
     public PagedListAdapter<Feed, ? extends RecyclerView.ViewHolder> getAdapter() {
-        return new HomePageAdapter(requireActivity());
+        feedType = getArguments() == null ? "all" : getArguments().getString("feedType");
+        return new HomePageAdapter(requireActivity()) {
+            @Override
+            public void onViewAttachedToWindow(@NonNull ViewHolder holder) {
+                super.onViewAttachedToWindow(holder);
+                if (holder.isVideoItem()) {
+                    pageListPlayDetector.addTarget(holder.getPlayListView());
+                }
+            }
+
+            @Override
+            public void onViewDetachedFromWindow(@NonNull ViewHolder holder) {
+                super.onViewDetachedFromWindow(holder);
+                if (holder.isVideoItem()) {
+                    pageListPlayDetector.removeTarget(holder.getPlayListView());
+                }
+            }
+        };
+    }
+
+    @Override
+    public void onPause() {
+        if (shouldPause) {
+            pageListPlayDetector.onPause();
+        }
+        super.onPause();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        shouldPause = true;
+        if (getParentFragment() != null) {
+            if (getParentFragment().isVisible() && isVisible()) {
+                pageListPlayDetector.onResume();
+            }
+        } else {
+            if (isVisible()) {
+                pageListPlayDetector.onResume();
+            }
+        }
+    }
+
+    @Override
+    public void onHiddenChanged(boolean hidden) {
+        super.onHiddenChanged(hidden);
+        if (hidden) {
+            pageListPlayDetector.onPause();
+        } else {
+            pageListPlayDetector.onResume();
+        }
+    }
+
+    @Override
+    public void onDestroy() {
+        pageListPlayDetector.onDestroy();
+        super.onDestroy();
     }
 }

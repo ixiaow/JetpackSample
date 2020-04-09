@@ -1,6 +1,7 @@
-package com.mooc.ppjoke.ui;
+package com.mooc.ppjoke.base;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -9,6 +10,10 @@ import androidx.paging.DataSource;
 import androidx.paging.LivePagedListBuilder;
 import androidx.paging.PagedList;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
+
 public abstract class AbsViewModel<Key, Value> extends ViewModel {
 
     private final LiveData<PagedList<Value>> pageData;
@@ -16,6 +21,8 @@ public abstract class AbsViewModel<Key, Value> extends ViewModel {
     private DataSource<Key, Value> dataSource;
     protected PagedList.Config config;
     protected LifecycleOwner viewLifecycleOwner;
+    private final MutableLiveData<PagedList<Value>> resultData = new MutableLiveData<>();
+    protected final AtomicBoolean loadAfter = new AtomicBoolean(false);
 
     public AbsViewModel() {
 
@@ -69,15 +76,38 @@ public abstract class AbsViewModel<Key, Value> extends ViewModel {
         return dataSource;
     }
 
-    public LiveData<PagedList<Value>> getPageData() {
-        return pageData;
-    }
-
     public MutableLiveData<Boolean> getBoundaryData() {
         return boundaryData;
     }
 
     public void setLifeOwner(LifecycleOwner viewLifecycleOwner) {
         this.viewLifecycleOwner = viewLifecycleOwner;
+        pageData.observe(viewLifecycleOwner, resultData::postValue);
+    }
+
+    public LiveData<PagedList<Value>> getResultData() {
+        return resultData;
+    }
+
+    public abstract void loadAfter(@Nullable Key key);
+
+    @SuppressWarnings("unchecked")
+    public void loadAfter(@Nullable PagedList<Value> currentList) {
+        Key key = null;
+        if (currentList != null) {
+            key = (Key) currentList.getLastKey();
+        }
+        if (loadAfter.get()) {
+            postToResult(Collections.emptyList());
+            return;
+        }
+        loadAfter(key);
+    }
+
+    protected void postToResult(List<Value> data) {
+        MutablePagedKeyDataSource<Key, Value> dataSource = new MutablePagedKeyDataSource<>();
+        PagedList<Value> pagedList = dataSource.buildNewPagedList(config);
+        dataSource.addList(data);
+        resultData.postValue(pagedList);
     }
 }

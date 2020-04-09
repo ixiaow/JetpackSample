@@ -6,5 +6,9 @@ dependencies {
     api deps.material
     api deps.glide
     api deps.glide_transformation
+    api deps.exoplayer.core
+    api deps.exoplayer.dash
+    api deps.exoplayer.ui
+
     annotationProcessor deps.glide_compiler
 }
