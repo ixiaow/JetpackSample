@@ -44,8 +44,8 @@ dependencies {
     implementation deps.navigation_ui
     implementation deps.lifecycle_extensions
 
-    implementation project(":navannotation")
-    annotationProcessor project(":navcompiler")
+    implementation project(':annotation')
+    annotationProcessor project(':compiler')
     implementation project(":network")
     implementation project(':common')
 

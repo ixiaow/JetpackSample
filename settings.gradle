@@ -1,6 +1,6 @@
 rootProject.name='JetpackSample'
 include ':app'
-include ':navannotation'
-include ':navcompiler'
+include ':annotation'
+include ':compiler'
 include ':common'
 include ':network'

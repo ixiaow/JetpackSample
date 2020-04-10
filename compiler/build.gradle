@@ -1,7 +1,7 @@
 apply plugin: 'java-library'
 
 dependencies {
-    implementation project(':navannotation')
+    implementation project(':annotation')
     implementation deps.auto_service
     annotationProcessor deps.auto_service
     implementation deps.fastjson
