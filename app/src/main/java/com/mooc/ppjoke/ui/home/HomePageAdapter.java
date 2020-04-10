@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.mooc.ppjoke.databinding.LayoutFeedTypeImageBinding;
 import com.mooc.ppjoke.databinding.LayoutFeedTypeVideoBinding;
 import com.mooc.ppjoke.model.Feed;
+import com.mooc.ppjoke.ui.login.UserManager;
 import com.mooc.ppjoke.view.player.IPlayTarget;
 
 import java.util.Objects;
@@ -79,11 +80,15 @@ public class HomePageAdapter extends PagedListAdapter<Feed, HomePageAdapter.View
             if (viewDataBinding instanceof LayoutFeedTypeImageBinding) {
                 LayoutFeedTypeImageBinding binding = (LayoutFeedTypeImageBinding) viewDataBinding;
                 binding.setFeed(feed);
+                boolean isEqualsUser = feed.author.userId == UserManager.get().getUserId();
+                binding.author.feedDelete.setVisibility(isEqualsUser ? View.VISIBLE : View.GONE);
                 binding.feedImage.bindData(feed.width, feed.height, 16, feed.cover);
                 binding.interactionBinding.setLifeCycleOwner((LifecycleOwner) itemView.getContext());
             } else {
                 LayoutFeedTypeVideoBinding binding = (LayoutFeedTypeVideoBinding) viewDataBinding;
                 binding.setFeed(feed);
+                boolean isEqualsUser = feed.author.userId == UserManager.get().getUserId();
+                binding.author.feedDelete.setVisibility(isEqualsUser ? View.VISIBLE : View.GONE);
                 binding.listPlayerView.bindData(feed.width, feed.height, feed.cover, feed.url);
                 binding.interactionBinding.setLifeCycleOwner((LifecycleOwner) itemView.getContext());
                 videoPlayListView = binding.listPlayerView;

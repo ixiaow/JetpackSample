@@ -14,6 +14,7 @@ import com.mooc.network.http.LiveHttp;
 import com.mooc.ppjoke.Api;
 import com.mooc.ppjoke.base.AbsViewModel;
 import com.mooc.ppjoke.model.Feed;
+import com.mooc.ppjoke.ui.login.UserManager;
 
 import java.util.Collections;
 import java.util.List;
@@ -60,7 +61,7 @@ public class HomeViewModel extends AbsViewModel<Integer, Feed> {
                 .url(Api.QUERY_HOT_FEED_LIST)
                 .get()
                 .addParam("feedType", "all")
-                .addParam("userId", 0)
+                .addParam("userId", UserManager.get().getUserId())
                 .addParam("feedId", key)
                 .addParam("pageCount", count)
                 .isAsync(isAsync)
@@ -75,10 +76,8 @@ public class HomeViewModel extends AbsViewModel<Integer, Feed> {
                             }
                         } else {
                             if (apiResponse.isSuccessful()) {
-                                Logs.d("success call back");
                                 callback.onResult(apiResponse.data == null ? Collections.emptyList() : apiResponse.data);
                             } else {
-                                Logs.d("error call back");
                                 callback.onResult(Collections.emptyList());
                                 ToastUtil.showToast(apiResponse.message);
                             }

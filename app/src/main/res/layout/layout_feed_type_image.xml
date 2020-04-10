@@ -21,6 +21,7 @@
 
 
         <include
+            android:id="@+id/author"
             layout="@layout/layout_feed_author"
             app:user="@{feed.author}" />
 

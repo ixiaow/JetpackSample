@@ -176,6 +176,7 @@ public class OkHttpEngine implements IHttpEngine {
     private <T> void saveCache(String cacheKey, ApiResponse<T> response) {
         if (response.data == null) {
             CacheManager.get().delete(cacheKey);
+            return;
         }
 
         if (response.data instanceof Void) {

@@ -1,9 +1,12 @@
 package com.mooc.ppjoke.model;
 
-import java.io.Serializable;
-import java.util.Objects;
+import androidx.databinding.BaseObservable;
+import androidx.databinding.Bindable;
+import androidx.databinding.library.baseAdapters.BR;
 
-public class Ugc implements Serializable {
+import java.io.Serializable;
+
+public class Ugc extends BaseObservable implements Serializable {
     /**
      * likeCount : 1347
      * shareCount : 95
@@ -22,6 +25,42 @@ public class Ugc implements Serializable {
     public boolean hasdiss;
     public boolean hasDissed;
 
+
+    @Bindable
+    public boolean isHasLiked() {
+        return hasLiked;
+    }
+
+    public void setHasLiked(boolean hasLiked) {
+        if (this.hasLiked == hasLiked) {
+            return;
+        }
+
+        if (hasLiked) {
+            likeCount++;
+            setHasdiss(false);
+        } else {
+            likeCount--;
+        }
+        this.hasLiked = hasLiked;
+        notifyPropertyChanged(BR._all);
+    }
+
+    @Bindable
+    public boolean isHasdiss() {
+        return hasdiss;
+    }
+
+    public void setHasdiss(boolean hasdiss) {
+        if (this.hasdiss == hasdiss) {
+            return;
+        }
+        if (hasdiss) {
+            setHasLiked(false);
+        }
+        this.hasdiss = hasdiss;
+        notifyPropertyChanged(BR._all);
+    }
 
     @Override
     public boolean equals(Object o) {

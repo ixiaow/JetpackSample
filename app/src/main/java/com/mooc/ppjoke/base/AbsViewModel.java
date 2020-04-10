@@ -102,7 +102,7 @@ public abstract class AbsViewModel<Key, Value> extends BaseViewModel {
         loadAfter(key);
     }
 
-    protected void postToResult(List<Value> data) {
+    protected void postToResult(@NonNull List<Value> data) {
         MutablePagedKeyDataSource<Key, Value> dataSource = new MutablePagedKeyDataSource<>();
         PagedList<Value> pagedList = dataSource.buildNewPagedList(config);
         dataSource.addList(data);
