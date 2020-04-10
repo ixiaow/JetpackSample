@@ -5,7 +5,6 @@ import androidx.annotation.Nullable;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.ViewModel;
 import androidx.paging.DataSource;
 import androidx.paging.LivePagedListBuilder;
 import androidx.paging.PagedList;
@@ -14,13 +13,12 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public abstract class AbsViewModel<Key, Value> extends ViewModel {
+public abstract class AbsViewModel<Key, Value> extends BaseViewModel {
 
     private final LiveData<PagedList<Value>> pageData;
     private MutableLiveData<Boolean> boundaryData = new MutableLiveData<>();
     private DataSource<Key, Value> dataSource;
     protected PagedList.Config config;
-    protected LifecycleOwner viewLifecycleOwner;
     private final MutableLiveData<PagedList<Value>> resultData = new MutableLiveData<>();
     protected final AtomicBoolean loadAfter = new AtomicBoolean(false);
 

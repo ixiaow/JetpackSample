@@ -14,10 +14,24 @@ android {
         testInstrumentationRunner androidConfig.testInstrumentationRunner
     }
 
+    signingConfigs {
+        joke {
+            storePassword '123456'
+            keyAlias = 'pipijoke'
+            keyPassword '123456'
+            storeFile file('../key')
+        }
+    }
+
     buildTypes {
         release {
             minifyEnabled false
+            signingConfig signingConfigs.joke
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+
+        debug {
+            signingConfig signingConfigs.joke
         }
     }
 
@@ -39,15 +53,13 @@ dependencies {
     androidTestImplementation deps.ext_junit
     androidTestImplementation deps.espresso_core
     implementation deps.fastjson
-
     implementation deps.navigtation_fragment
     implementation deps.navigation_ui
     implementation deps.lifecycle_extensions
-
     implementation project(':annotation')
     annotationProcessor project(':compiler')
-    implementation project(":network")
+    implementation project(':network')
     implementation project(':common')
-
     implementation deps.paging
+    implementation files('libs/open_sdk_r6140_lite.jar')
 }

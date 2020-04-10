@@ -69,13 +69,19 @@ public class HomeViewModel extends AbsViewModel<Integer, Feed> {
                     @Override
                     public void onChanged(ApiResponse<List<Feed>> apiResponse) {
                         Logs.d("thread: " + Thread.currentThread().getName() + ",  apiResponse: " + apiResponse);
-                        if (apiResponse.isCached() && apiResponse.data != null) {
-                            postToResult(apiResponse.data);
-                        } else if (apiResponse.isSuccessful()) {
-                            callback.onResult(apiResponse.data == null ? Collections.emptyList() : apiResponse.data);
+                        if (apiResponse.isCached()) {
+                            if (apiResponse.data != null) {
+                                postToResult(apiResponse.data);
+                            }
                         } else {
-                            callback.onResult(Collections.emptyList());
-                            ToastUtil.showToast(apiResponse.message);
+                            if (apiResponse.isSuccessful()) {
+                                Logs.d("success call back");
+                                callback.onResult(apiResponse.data == null ? Collections.emptyList() : apiResponse.data);
+                            } else {
+                                Logs.d("error call back");
+                                callback.onResult(Collections.emptyList());
+                                ToastUtil.showToast(apiResponse.message);
+                            }
                         }
                         getBoundaryData().postValue(apiResponse.data != null && apiResponse.data.size() > 0);
                         loadAfter.compareAndSet(true, false);

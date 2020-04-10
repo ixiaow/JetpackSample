@@ -16,7 +16,7 @@ import com.mooc.common.utils.Logs;
 import com.mooc.navannotation.FragmentDestination;
 import com.mooc.ppjoke.R;
 
-@FragmentDestination(pageUrl = "main/tabs/my")
+@FragmentDestination(pageUrl = "main/tabs/my", isNeedLogin = true)
 public class MineFragment extends Fragment {
 
     private NotificationsViewModel notificationsViewModel;

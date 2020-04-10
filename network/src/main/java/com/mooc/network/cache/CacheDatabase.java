@@ -15,6 +15,7 @@ public abstract class CacheDatabase extends RoomDatabase {
     static {
         Application application = AppGlobals.getApplication();
         cacheDatabase = Room.databaseBuilder(application, CacheDatabase.class, "net_cache.db")
+                .allowMainThreadQueries()
                 .build();
     }
 

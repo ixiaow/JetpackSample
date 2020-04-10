@@ -10,17 +10,18 @@ import android.view.MenuItem;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.collection.SparseArrayCompat;
 
 import com.google.android.material.bottomnavigation.BottomNavigationItemView;
 import com.google.android.material.bottomnavigation.BottomNavigationMenuView;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.bottomnavigation.LabelVisibilityMode;
+import com.mooc.common.utils.PxUtils;
 import com.mooc.ppjoke.R;
 import com.mooc.ppjoke.model.Destination;
 import com.mooc.ppjoke.model.MainTabs;
 import com.mooc.ppjoke.model.MainTabs.Tab;
 import com.mooc.ppjoke.utils.AppConfig;
-import com.mooc.common.utils.PxUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,8 +35,7 @@ public class AppBottomBar extends BottomNavigationView {
             R.drawable.icon_tab_mine
     };
 
-    private MainTabs mainTabs;
-    private List<Tab> tabs = new ArrayList<>();
+    private SparseArrayCompat<Tab> tabs = new SparseArrayCompat<>();
 
     public AppBottomBar(@NonNull Context context) {
         this(context, null);
@@ -53,7 +53,7 @@ public class AppBottomBar extends BottomNavigationView {
             return;
         }
 
-        mainTabs = AppConfig.getMainTabs();
+        MainTabs mainTabs = AppConfig.getMainTabs();
         if (mainTabs == null) {
             return;
         }
@@ -68,6 +68,7 @@ public class AppBottomBar extends BottomNavigationView {
         setItemTextColor(stateList);
         setItemIconTintList(stateList);
 
+        List<Tab> tmpTabs = new ArrayList<>();
         // 遍历tab,添加menu
         for (Tab tab : mainTabs.tabs) {
             if (!tab.enable) {
@@ -77,14 +78,15 @@ public class AppBottomBar extends BottomNavigationView {
             if (id != -1) {
                 MenuItem menu = getMenu().add(0, id, tab.index, tab.title);
                 menu.setIcon(icons[tab.index]);
-                tabs.add(tab);
+                tabs.put(id, tab);
+                tmpTabs.add(tab);
             }
         }
 
         // 由于每次调用getMenu().add() 会将之前添加的item移除掉，所以没有办法直接在menu中更改title的大戏和颜色
-        for (int i = 0; i < tabs.size(); i++) {
-            Tab tab = tabs.get(i);
-            BottomNavigationMenuView menuView = (BottomNavigationMenuView) getChildAt(0);
+        BottomNavigationMenuView menuView = (BottomNavigationMenuView) getChildAt(0);
+        for (int i = 0; i < tmpTabs.size(); i++) {
+            Tab tab = tmpTabs.get(i);
             BottomNavigationItemView itemView = (BottomNavigationItemView) menuView.getChildAt(i);
             itemView.setIconSize(PxUtils.dp2px(tab.size));
             if (TextUtils.isEmpty(tab.title)) {
@@ -94,6 +96,7 @@ public class AppBottomBar extends BottomNavigationView {
                 itemView.setShifting(false);
             }
         }
+        tmpTabs.clear();
     }
 
     private int getItemId(Tab tab) {
@@ -106,10 +109,20 @@ public class AppBottomBar extends BottomNavigationView {
 
     public void setSelectedItem(int position) {
         if (!tabs.isEmpty() && position < tabs.size()) {
-            int itemId = getItemId(tabs.get(position));
+            int itemId = getItemId(tabs.valueAt(position));
             if (itemId > 0) {
                 setSelectedItemId(itemId);
             }
         }
+    }
+
+    @Nullable
+    public Destination getDestination(int itemId) {
+        Tab tab = tabs.get(itemId);
+        if (tab == null) {
+            return null;
+        }
+        String pageUrl = tab.pageUrl;
+        return AppConfig.getDestConfig().get(pageUrl);
     }
 }

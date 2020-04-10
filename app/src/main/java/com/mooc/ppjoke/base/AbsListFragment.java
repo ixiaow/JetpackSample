@@ -1,5 +1,6 @@
 package com.mooc.ppjoke.base;
 
+import android.app.Application;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -10,12 +11,14 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.paging.PagedList;
 import androidx.paging.PagedListAdapter;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.mooc.common.utils.AppGlobals;
 import com.mooc.common.utils.Logs;
 import com.mooc.common.view.EmptyView;
 import com.mooc.ppjoke.R;
@@ -80,15 +83,12 @@ public abstract class AbsListFragment<Key, Value, VM extends AbsViewModel<Key, V
         if (arguments.length > 2) {
             Type argument = arguments[2];
             Class modelClass = ((Class) argument).asSubclass(AbsViewModel.class);
-            try {
-                viewModel = (VM) modelClass.newInstance();
-                viewModel.setLifeOwner(getViewLifecycleOwner());
-                viewModel.getResultData().observe(getViewLifecycleOwner(), this::submitList);
-                viewModel.getBoundaryData().observe(getViewLifecycleOwner(), this::finishRefresh);
-            } catch (IllegalAccessException | java.lang.InstantiationException e) {
-                e.printStackTrace();
-                throw new IllegalArgumentException("实例化viewModel出错！");
-            }
+            Application application = AppGlobals.getApplication();
+            viewModel = (VM) ViewModelProvider.AndroidViewModelFactory.getInstance(application).create(modelClass);
+            viewModel.setLifeOwner(getViewLifecycleOwner());
+            viewModel.getResultData().observe(getViewLifecycleOwner(), this::submitList);
+            viewModel.getBoundaryData().observe(getViewLifecycleOwner(), this::finishRefresh);
+
         }
     }
 
