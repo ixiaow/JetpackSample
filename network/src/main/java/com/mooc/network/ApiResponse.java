@@ -2,6 +2,7 @@ package com.mooc.network;
 
 public class ApiResponse<T> {
     public static final int CACHE_CODE = 304;
+    public static final int LOCAL_ERROR = 999;
 
     public int status;
     public String message;

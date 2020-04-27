@@ -1,4 +1,4 @@
-package com.mooc.network.http;
+package com.mooc.network;
 
 
 import android.text.TextUtils;
@@ -10,9 +10,10 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.mooc.common.utils.Logs;
-import com.mooc.network.ApiResponse;
-import com.mooc.network.HttpObserver;
-import com.mooc.network.TaskExecutor;
+import com.mooc.network.http.FormData;
+import com.mooc.network.http.HttpConfig;
+import com.mooc.network.http.IHttpEngine;
+import com.mooc.network.http.TypeToken;
 import com.mooc.network.http.okhttp.OkHttpEngine;
 
 import java.lang.reflect.Type;
@@ -20,8 +21,13 @@ import java.util.Map;
 
 public class LiveHttp {
     private static IHttpEngine sHttpEngine = new OkHttpEngine();
-    private Config mConfig;
     private static String sBaseUrl;
+    private HttpConfig mConfig;
+
+    private LiveHttp() {
+        mConfig = new HttpConfig();
+        mConfig.baseUrl = sBaseUrl;
+    }
 
     /**
      * 初始化http配置信息
@@ -36,11 +42,6 @@ public class LiveHttp {
         }
     }
 
-    private LiveHttp() {
-        mConfig = new Config();
-        mConfig.baseUrl = sBaseUrl;
-    }
-
     /**
      * 创建一个http
      */
@@ -48,21 +49,38 @@ public class LiveHttp {
         return new LiveHttp();
     }
 
+    public static void cancel(Object tag) {
+        sHttpEngine.cancel(tag);
+    }
+
     /**
-     * 设置业务url
+     * url全路径
+     * example: https://www.github.com/ixiaow
      *
-     * @param url 设置业务url
+     * @param url url全路径
      */
     public LiveHttp url(String url) {
         mConfig.url = url;
+        mConfig.baseUrl = "";
         return this;
     }
 
     /**
-     * 设置业务url
+     * 设置restful url路径
+     * example: baseUrl: https://www.github.com   path: /ixiaow
+     *
+     * @param path restful url路径
+     */
+    public LiveHttp path(String path) {
+        mConfig.url = path;
+        return this;
+    }
+
+    /**
+     * 设置为get请求方式
      */
     public LiveHttp get() {
-        mConfig.method = Config.GET;
+        mConfig.method = HttpConfig.GET;
         return this;
     }
 
@@ -70,7 +88,7 @@ public class LiveHttp {
      * 设置post请求方式
      */
     public LiveHttp post() {
-        mConfig.method = Config.POST;
+        mConfig.method = HttpConfig.POST;
         mConfig.setPostType(FormData.FORM_DATA);
         return this;
     }
@@ -79,26 +97,25 @@ public class LiveHttp {
      * 设置post请求方式
      */
     public LiveHttp post(FormData formData) {
-        mConfig.method = Config.POST;
+        mConfig.method = HttpConfig.POST;
         mConfig.setPostType(formData);
         return this;
     }
 
     /**
-     * 设置post请求方式
+     * 设置post json请求方式
      */
     public LiveHttp post(String json) {
-        mConfig.method = Config.POST;
+        mConfig.method = HttpConfig.POST;
         mConfig.setPostType(FormData.JSON_DATA);
-        mConfig.addParam(Config.JSON_KEY, json);
+        mConfig.addParam(HttpConfig.JSON_KEY, json);
         return this;
     }
-
 
     /**
      * 设置缓存策略
      */
-    public LiveHttp cacheStrategy(@Config.CacheStrategy int cacheStrategy) {
+    public LiveHttp cacheStrategy(@HttpConfig.CacheStrategy int cacheStrategy) {
         mConfig.cacheStrategy = cacheStrategy;
         return this;
     }
@@ -119,6 +136,9 @@ public class LiveHttp {
         return this;
     }
 
+    /**
+     * 设置解析的数据类型
+     */
     public LiveHttp registerType(TypeToken typeReference) {
         mConfig.type = typeReference.getType();
         return this;
@@ -126,12 +146,12 @@ public class LiveHttp {
 
     /**
      * 设置当前方式是同步的还是异步
+     * 默认为异步
      */
     public LiveHttp isAsync(boolean isAsync) {
         mConfig.isAsync = isAsync;
         return this;
     }
-
 
     /**
      * 添加请求参数
@@ -179,9 +199,10 @@ public class LiveHttp {
      * 开始订阅请求网络数据
      */
     public <T> void observe(LifecycleOwner owner, HttpObserver<ApiResponse<T>> observer) {
+        // 获取泛型实际类型
         Type type = observer.getType();
         mConfig.type = type;
-        Logs.e("type: " + type);
+        Logs.d("type: " + type);
 
         if (TextUtils.isEmpty(mConfig.url())) {
             throw new IllegalArgumentException("请求路径不能为空");
@@ -191,7 +212,6 @@ public class LiveHttp {
         TaskExecutor.get().postToMain(() -> liveData.observe(owner, observer));
         sHttpEngine.execute(mConfig, liveData);
     }
-
 
     /**
      * 开始请求网络数据
@@ -203,10 +223,6 @@ public class LiveHttp {
         MutableLiveData<ApiResponse<T>> liveData = new MutableLiveData<>();
         sHttpEngine.execute(mConfig, liveData);
         return liveData;
-    }
-
-    public static void cancel(Object tag) {
-        sHttpEngine.cancel(tag);
     }
 
 }

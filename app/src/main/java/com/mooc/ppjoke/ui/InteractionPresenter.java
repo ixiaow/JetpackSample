@@ -12,7 +12,7 @@ import com.mooc.common.interfaces.Function;
 import com.mooc.common.utils.ToastUtil;
 import com.mooc.network.ApiResponse;
 import com.mooc.network.HttpObserver;
-import com.mooc.network.http.LiveHttp;
+import com.mooc.network.LiveHttp;
 import com.mooc.ppjoke.Api;
 import com.mooc.ppjoke.model.Comment;
 import com.mooc.ppjoke.model.Feed;
@@ -41,7 +41,7 @@ public class InteractionPresenter {
     private static void toggleCommentLikeInternal(LifecycleOwner owner, Comment comment) {
         LiveHttp.create()
                 .get()
-                .url(Api.URL_TOGGLE_COMMENT_LIKE)
+                .path(Api.URL_TOGGLE_COMMENT_LIKE)
                 .addParam("commentId", comment.commentId)
                 .addParam("userId", UserManager.get().getUserId())
                 .observe(owner, new HttpObserver<ApiResponse<JSONObject>>() {
@@ -60,7 +60,7 @@ public class InteractionPresenter {
     private static void toggleFeedLikeInternal(LifecycleOwner owner, Feed feed) {
         LiveHttp.create()
                 .get()
-                .url(Api.URL_TOGGLE_FEED_LIK)
+                .path(Api.URL_TOGGLE_FEED_LIK)
                 .addParam("userId", UserManager.get().getUserId())
                 .addParam("itemId", feed.itemId)
                 .observe(owner, new HttpObserver<ApiResponse<JSONObject>>() {
@@ -79,7 +79,7 @@ public class InteractionPresenter {
     private static void toggleFeedDissInternal(LifecycleOwner owner, Feed feed) {
         LiveHttp.create()
                 .get()
-                .url(Api.URL_TOGGLE_FEED_DISS)
+                .path(Api.URL_TOGGLE_FEED_DISS)
                 .addParam("itemId", feed.itemId)
                 .addParam("userId", UserManager.get().getUserId())
                 .observe(owner, new HttpObserver<ApiResponse<JSONObject>>() {

@@ -3,7 +3,6 @@ package com.mooc.ppjoke.navigator;
 import android.app.Application;
 import android.content.ComponentName;
 
-import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.navigation.ActivityNavigator;
@@ -12,30 +11,33 @@ import androidx.navigation.NavGraph;
 import androidx.navigation.NavGraphNavigator;
 import androidx.navigation.NavigatorProvider;
 import androidx.navigation.fragment.FragmentNavigator;
+import androidx.navigation.fragment.NavHostFragment;
 
+import com.mooc.common.utils.AppGlobals;
 import com.mooc.ppjoke.model.Destination;
 import com.mooc.ppjoke.utils.AppConfig;
-import com.mooc.common.utils.AppGlobals;
 
 import java.util.Map;
 
 public class NavGraphBuilder {
 
-    public static void build(FragmentActivity activity, int containerId, NavController controller) {
-
-        NavigatorProvider provider = controller.getNavigatorProvider();
-        ActivityNavigator activityNavigator = provider.getNavigator(ActivityNavigator.class);
+    public static void build(FragmentActivity activity, int navHostId) {
 
         // 此处很重要，需要通过containerId找到NavHostFragment
-        Fragment fragment = activity.getSupportFragmentManager().findFragmentById(containerId);
+        NavHostFragment fragment = (NavHostFragment) activity.getSupportFragmentManager().findFragmentById(navHostId);
         if (fragment == null) {
-            throw new IllegalArgumentException("not found fragment by containerId: " + containerId);
+            throw new IllegalArgumentException("not found fragment by containerId: " + navHostId);
         }
+
+        NavController navController = fragment.getNavController();
+        NavigatorProvider provider = navController.getNavigatorProvider();
+        ActivityNavigator activityNavigator = provider.getNavigator(ActivityNavigator.class);
+
         // 此处的fragmentManager 只能是 childFragmentManager,不然返回按钮会引起返回栈的操作
         // 关于此处可以查看NavHostFragment中的createFragmentNavigator()
         FragmentManager childFragmentManager = fragment.getChildFragmentManager();
         FixFragmentNavigator fragmentNavigator = new FixFragmentNavigator(activity,
-                childFragmentManager, containerId);
+                childFragmentManager, navHostId);
         provider.addNavigator(fragmentNavigator);
 
 
@@ -63,6 +65,6 @@ public class NavGraphBuilder {
                 navGraph.setStartDestination(dest.id);
             }
         }
-        controller.setGraph(navGraph);
+        navController.setGraph(navGraph);
     }
 }

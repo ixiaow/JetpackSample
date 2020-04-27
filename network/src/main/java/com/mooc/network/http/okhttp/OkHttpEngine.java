@@ -11,8 +11,8 @@ import com.mooc.network.ApiResponse;
 import com.mooc.network.SimpleX509TrustManager;
 import com.mooc.network.TaskExecutor;
 import com.mooc.network.cache.CacheManager;
-import com.mooc.network.http.Config;
 import com.mooc.network.http.FormData;
+import com.mooc.network.http.HttpConfig;
 import com.mooc.network.http.IConvert;
 import com.mooc.network.http.IHttpEngine;
 import com.mooc.network.http.UrlCreator;
@@ -47,6 +47,8 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.logging.HttpLoggingInterceptor;
 
+import static com.mooc.network.ApiResponse.LOCAL_ERROR;
+
 public class OkHttpEngine implements IHttpEngine {
 
     private static final OkHttpClient OK_HTTP_CLIENT;
@@ -73,9 +75,10 @@ public class OkHttpEngine implements IHttpEngine {
         }
     }
 
-    @NonNull
     @Override
-    public <T> void execute(@NonNull Config config, @NonNull MutableLiveData<ApiResponse<T>> liveData) {
+    public <T> void execute(@NonNull HttpConfig config,
+                            @NonNull MutableLiveData<ApiResponse<T>> liveData) {
+        // 创建http请求
         Request request = generateRequest(config);
         Call call = OK_HTTP_CLIENT.newCall(request);
         if (!config.isAsync) {
@@ -89,60 +92,79 @@ public class OkHttpEngine implements IHttpEngine {
      * 同步执行的方法
      */
     @SuppressWarnings("unchecked")
-    private <T> void execute(Call call, Config config, MutableLiveData<ApiResponse<T>> liveData) {
+    private <T> void execute(Call call, HttpConfig config, MutableLiveData<ApiResponse<T>> liveData) {
         ApiResponse<T> apiResponse;
         Logs.d("execute before cache: " + Thread.currentThread().getName());
         // 只访问本地数据
-        if (config.cacheStrategy == Config.CACHE_ONLY) {
+        if (config.cacheStrategy == HttpConfig.CACHE_ONLY) {
             apiResponse = readCache(call.request().url().toString());
-            liveData.postValue(apiResponse);
+            if (!call.isCanceled()) {
+                liveData.postValue(apiResponse);
+            }
             return;
         }
 
         // 先访问本地数据，然后再发起网络请求
-        if (config.cacheStrategy == Config.CACHE_FIRST) {
+        if (config.cacheStrategy == HttpConfig.CACHE_FIRST) {
             apiResponse = readCache(call.request().url().toString());
-            liveData.postValue(apiResponse);
+            if (!call.isCanceled()) {
+                liveData.postValue(apiResponse);
+            }
+        }
+        // 如果当前请求已经取消，则不在进行网络请求
+        if (call.isCanceled()) {
+            return;
         }
 
         Logs.d("execute current thread: " + Thread.currentThread().getName());
         try {
             Response response = call.execute();
+            // 创建解析类将json--> bean
             IConvert<Response, T> convert = ConvertFactory.create();
             apiResponse = convert.convert(response, config.type);
         } catch (IOException e) {
-            e.printStackTrace();
             apiResponse = new ApiResponse<>();
-            apiResponse.status = 500;
+            apiResponse.status = LOCAL_ERROR;
             apiResponse.message = e.getMessage();
         }
 
-        if (call.isCanceled()) {
-            return;
+        if (!call.isCanceled()) {
+            liveData.postValue(apiResponse);
         }
 
-        liveData.postValue(apiResponse);
-        if (config.cacheStrategy != Config.NET_ONLY) {
+        // 缓存策略不能为仅使用网络数据并且只有访问服务器成功才会更新数据缓存
+        if (config.cacheStrategy != HttpConfig.NET_ONLY
+                && apiResponse.status != LOCAL_ERROR) {
             saveCache(call.request().url().toString(), apiResponse);
         }
     }
 
-    private <T> void enqueue(Call call, Config config, MutableLiveData<ApiResponse<T>> liveData) {
+    private <T> void enqueue(final Call call, final HttpConfig config,
+                             final MutableLiveData<ApiResponse<T>> liveData) {
         // 异步先发起网络请求
-        if (config.cacheStrategy == Config.CACHE_ONLY) {
+        if (config.cacheStrategy == HttpConfig.CACHE_ONLY) {
             TaskExecutor.get().executeOnDiskIO(() -> {
                 ApiResponse<T> apiResponse = readCache(call.request().url().toString());
-                liveData.postValue(apiResponse);
+                if (!call.isCanceled()) {
+                    liveData.postValue(apiResponse);
+                }
             });
             return;
         }
 
         // 先访问本地数据，然后再发起网络请求
-        if (config.cacheStrategy == Config.CACHE_FIRST) {
+        if (config.cacheStrategy == HttpConfig.CACHE_FIRST) {
             TaskExecutor.get().executeOnDiskIO(() -> {
                 ApiResponse<T> apiResponse = readCache(call.request().url().toString());
-                liveData.postValue(apiResponse);
+                if (!call.isCanceled()) {
+                    liveData.postValue(apiResponse);
+                }
             });
+        }
+
+        // 如果当前请求已经取消，则不在进行网络请求
+        if (call.isCanceled()) {
+            return;
         }
 
         call.enqueue(new Callback() {
@@ -152,7 +174,7 @@ public class OkHttpEngine implements IHttpEngine {
                     return;
                 }
                 ApiResponse<T> apiResponse = new ApiResponse<>();
-                apiResponse.status = 500;
+                apiResponse.status = LOCAL_ERROR;
                 apiResponse.message = e.getMessage();
                 liveData.postValue(apiResponse);
             }
@@ -166,29 +188,46 @@ public class OkHttpEngine implements IHttpEngine {
                 IConvert<Response, T> convert = ConvertFactory.create();
                 ApiResponse<T> apiResponse = convert.convert(response, config.type);
                 liveData.postValue(apiResponse);
-                if (config.cacheStrategy != Config.NET_ONLY) {
+                if (config.cacheStrategy != HttpConfig.NET_ONLY) {
                     saveCache(call.request().url().toString(), apiResponse);
                 }
             }
         });
     }
 
+    /**
+     * 缓存数据
+     *
+     * @param cacheKey 缓存数据的key
+     * @param response 响应数据
+     * @param <T>      泛型
+     */
     private <T> void saveCache(String cacheKey, ApiResponse<T> response) {
+        // 如果当前数据为空则删除缓存数据
         if (response.data == null) {
             CacheManager.get().delete(cacheKey);
             return;
         }
 
+        // 如果响应的数据类型是Void 则不需要进行任何处理
         if (response.data instanceof Void) {
             return;
         }
-
+        // 缓存数据对象必须要实现Serializable
         if (!(response.data instanceof Serializable)) {
             throw new IllegalArgumentException(response.data + " must implement Serializable or void");
         }
+        // 保存数据
         CacheManager.get().save(cacheKey, (Serializable) response.data);
     }
 
+    /**
+     * 读取缓存数据
+     *
+     * @param cacheKey 缓存数据key
+     * @param <T>      泛型
+     * @return ApiResponse
+     */
     private <T> ApiResponse<T> readCache(String cacheKey) {
         ApiResponse<T> apiResponse = new ApiResponse<>();
         apiResponse.status = 304;
@@ -205,11 +244,11 @@ public class OkHttpEngine implements IHttpEngine {
      * @return request
      */
     @NonNull
-    private Request generateRequest(@NonNull Config config) {
+    private Request generateRequest(@NonNull HttpConfig config) {
         switch (config.method) {
-            case Config.GET:
+            case HttpConfig.GET:
                 return generateGetRequest(config);
-            case Config.POST:
+            case HttpConfig.POST:
                 return generatePostRequest(config);
 
             default:
@@ -224,8 +263,8 @@ public class OkHttpEngine implements IHttpEngine {
      * @return 请求request
      */
     @NonNull
-    private Request generatePostRequest(@NonNull Config config) {
-        Request.Builder builder = new Request.Builder().url(config.url());
+    private Request generatePostRequest(@NonNull HttpConfig config) {
+        Request.Builder builder = new Request.Builder().url(config.url()).tag(config.tag);
         addHeader(builder, config);
         // 根据提交方式添加header信息
         Pair<String, String> header = config.formData.getHeader();
@@ -243,7 +282,7 @@ public class OkHttpEngine implements IHttpEngine {
      * @return RequestBody
      */
     @NonNull
-    private RequestBody generatePostRequestBody(@NonNull Config config) {
+    private RequestBody generatePostRequestBody(@NonNull HttpConfig config) {
         FormData formData = config.formData;
         switch (formData) {
             case FORM_DATA:
@@ -266,7 +305,7 @@ public class OkHttpEngine implements IHttpEngine {
      */
     @NonNull
     @SuppressWarnings("unchecked")
-    private RequestBody getMultiDataRequestBody(@NonNull Config config) {
+    private RequestBody getMultiDataRequestBody(@NonNull HttpConfig config) {
 
         MultipartBody.Builder builder = new MultipartBody.Builder();
         builder.setType(MultipartBody.FORM);
@@ -316,12 +355,12 @@ public class OkHttpEngine implements IHttpEngine {
      * @return RequestBody
      */
     @NonNull
-    private RequestBody getJsonDataRequestBody(@NonNull Config config) {
+    private RequestBody getJsonDataRequestBody(@NonNull HttpConfig config) {
 
         if (config.getParams().isEmpty()) {
             throw new IllegalArgumentException("json data is null");
         }
-        Object json = config.getParams().get(Config.JSON_KEY);
+        Object json = config.getParams().get(HttpConfig.JSON_KEY);
         return RequestBody.create(String.valueOf(json), MediaType.parse(config.formData.getValue()));
     }
 
@@ -333,7 +372,7 @@ public class OkHttpEngine implements IHttpEngine {
      * @return FromBody
      */
     @NonNull
-    private RequestBody getFormDataRequestBody(@NonNull Config config) {
+    private RequestBody getFormDataRequestBody(@NonNull HttpConfig config) {
         FormBody.Builder builder = new FormBody.Builder(StandardCharsets.UTF_8);
         Map<String, Object> params = config.getParams();
         for (Map.Entry<String, Object> entry : params.entrySet()) {
@@ -349,8 +388,8 @@ public class OkHttpEngine implements IHttpEngine {
      * @return 返回get方式的request
      */
     @NonNull
-    private Request generateGetRequest(@NonNull Config config) {
-        Request.Builder builder = new Request.Builder().get();
+    private Request generateGetRequest(@NonNull HttpConfig config) {
+        Request.Builder builder = new Request.Builder().get().tag(config.tag);
         addHeader(builder, config);
         String url = UrlCreator.generateUrlForParams(config.url(), config.getParams());
         return builder.url(url).build();
@@ -363,7 +402,7 @@ public class OkHttpEngine implements IHttpEngine {
      * @param builder okHttp builder
      * @param config  请求参数信息
      */
-    private void addHeader(@NonNull Request.Builder builder, @NonNull Config config) {
+    private void addHeader(@NonNull Request.Builder builder, @NonNull HttpConfig config) {
         for (Map.Entry<String, String> entry : config.getHeaders().entrySet()) {
             builder.addHeader(entry.getKey(), entry.getValue());
         }

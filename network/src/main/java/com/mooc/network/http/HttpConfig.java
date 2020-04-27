@@ -1,8 +1,9 @@
 package com.mooc.network.http;
 
+import android.text.TextUtils;
+
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
-
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -10,7 +11,10 @@ import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Config {
+public class HttpConfig {
+    public static final String JSON_KEY = "json";
+
+
     /**
      * http get请求方式
      */
@@ -19,13 +23,6 @@ public class Config {
      * http post请求方式
      */
     public static final int POST = 1;
-    public static final String JSON_KEY = "json";
-
-    @IntDef({GET, POST})
-    @Retention(RetentionPolicy.SOURCE)
-    @interface Method {
-    }
-
     /**
      * 缓存策略  仅仅使用缓存
      */
@@ -42,66 +39,50 @@ public class Config {
      * 缓存策略 仅仅使用网络数据，后将数据保缓存
      */
     public static final int NET_CACHE = 3;
-
-    @IntDef({CACHE_ONLY, CACHE_FIRST, NET_ONLY, NET_CACHE})
-    @Retention(RetentionPolicy.SOURCE)
-    @interface CacheStrategy {
-    }
-
     /**
      * http请求方式
      */
     @Method
     public int method = GET;
     /**
-     * 设置post提交方式
-     */
-    public FormData formData;
-
-
-    /**
      * 缓存策略
      */
     @CacheStrategy
     public int cacheStrategy = NET_CACHE;
-
+    /**
+     * 设置post提交方式
+     */
+    public FormData formData;
     /*
      * 网络数据主动取消的tag
      */
     public Object tag;
-
+    /**
+     * http请求的基础url
+     */
+    public String baseUrl;
+    /**
+     * http请求的业务url
+     */
+    public String url;
+    /**
+     * 同步请求还是异步请求
+     */
+    public boolean isAsync = true;
+    /**
+     * 数据请求的转换类型
+     */
+    public Type type = Void.class;
     /**
      * http请求头部信息
      */
     private Map<String, String> headers;
-
     /**
      * http请求的参数
      */
     private Map<String, Object> params;
 
-    /**
-     * http请求的基础url
-     */
-    public String baseUrl;
-
-    /**
-     * http请求的业务url
-     */
-    public String url;
-
-    /**
-     * 同步请求还是异步请求
-     */
-    public boolean isAsync = true;
-
-    /**
-     * 数据请求的转换类型
-     */
-    public Type type = Void.class;
-
-
-    Config() {
+    public HttpConfig() {
         headers = new HashMap<>();
         params = new HashMap<>();
     }
@@ -154,13 +135,26 @@ public class Config {
         return params;
     }
 
-
     public String url() {
-        return baseUrl + url;
+        if (!TextUtils.isEmpty(baseUrl)) {
+            return baseUrl + url;
+        }
+        return url;
     }
-
 
     public void setPostType(FormData formData) {
         this.formData = formData;
+    }
+
+
+    @IntDef({GET, POST})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface Method {
+    }
+
+
+    @IntDef({CACHE_ONLY, CACHE_FIRST, NET_ONLY, NET_CACHE})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface CacheStrategy {
     }
 }

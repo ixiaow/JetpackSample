@@ -18,6 +18,8 @@ import com.mooc.common.GlideApp;
 import com.mooc.common.GlideRequest;
 import com.mooc.common.utils.PxUtils;
 
+import jp.wasabeef.glide.transformations.BlurTransformation;
+
 public class PPImageView extends AppCompatImageView {
     public PPImageView(Context context) {
         this(context, null);
@@ -65,7 +67,9 @@ public class PPImageView extends AppCompatImageView {
         }
 
         if (widthPx <= 0 || heightPx <= 0) {
-            GlideApp.with(this).load(imageUrl).into(new ImageViewTarget<Drawable>(this) {
+            GlideApp.with(this)
+                    .load(imageUrl)
+                    .into(new ImageViewTarget<Drawable>(this) {
                 @Override
                 protected void setResource(@Nullable Drawable resource) {
                     if (resource != null) {
@@ -91,7 +95,7 @@ public class PPImageView extends AppCompatImageView {
         // 宽度大于高度时，宽度为最大宽度，高度自适应
         if (width > height) {
             finalWidth = maxWidth;
-            finalHeight = (int) (height / (1.0 * width / finalWidth));
+            finalHeight = (int) (height / (1.0f * width / finalWidth));
         } else {
             // 高度大于宽度时，高度为最大高度，宽度自适应
             finalHeight = maxHeight;
@@ -115,7 +119,7 @@ public class PPImageView extends AppCompatImageView {
     public static void setBlurImageUrl(PPImageView imageView, String blurImageUrl, int radius) {
         GlideApp.with(imageView)
                 .load(blurImageUrl)
-                .override(radius)
+                .transform(new BlurTransformation(radius))
                 .into(new ImageViewTarget<Drawable>(imageView) {
                     @Override
                     protected void setResource(@Nullable Drawable resource) {

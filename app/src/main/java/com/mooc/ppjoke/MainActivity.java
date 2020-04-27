@@ -26,7 +26,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
         setContentView(R.layout.activity_main);
         navView = findViewById(R.id.nav_view);
         navController = Navigation.findNavController(this, R.id.nav_host_fragment);
-        NavGraphBuilder.build(this, R.id.nav_host_fragment, navController);
+        NavGraphBuilder.build(this, R.id.nav_host_fragment);
         navView.setOnNavigationItemSelectedListener(this);
     }
 

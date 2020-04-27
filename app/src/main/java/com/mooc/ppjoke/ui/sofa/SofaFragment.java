@@ -4,15 +4,14 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
+import android.widget.Button;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 
 import com.mooc.common.utils.Logs;
+import com.mooc.common.view.ShareDialog;
 import com.mooc.navannotation.FragmentDestination;
 import com.mooc.ppjoke.R;
 
@@ -27,11 +26,13 @@ public class SofaFragment extends Fragment {
         dashboardViewModel =
                 ViewModelProviders.of(this).get(DashboardViewModel.class);
         View root = inflater.inflate(R.layout.fragment_dashboard, container, false);
-        final TextView textView = root.findViewById(R.id.text_dashboard);
-        dashboardViewModel.getText().observe(getViewLifecycleOwner(), new Observer<String>() {
+        Button share = root.findViewById(R.id.share);
+        share.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onChanged(@Nullable String s) {
-                textView.setText(s);
+            public void onClick(View v) {
+                ShareDialog shareDialog = new ShareDialog(getContext());
+                shareDialog.setShareContent("测试分享功能");
+                shareDialog.show();
             }
         });
         return root;

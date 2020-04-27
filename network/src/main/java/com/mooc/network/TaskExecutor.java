@@ -13,15 +13,23 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class TaskExecutor {
     private final ExecutorService mDiskIO;
-    private volatile Handler mHandler;
     private final Object lock = new Object();
-
-    private static final class Holder {
-        private static final TaskExecutor sInstance = new TaskExecutor();
-    }
+    private volatile Handler mHandler;
 
     private TaskExecutor() {
-        mDiskIO = Executors.newFixedThreadPool(2, threadFactory);
+        ThreadFactory threadFactory = new ThreadFactory() {
+            private static final String THREAD_NAME_STEM = "arch_disk_io_%d";
+            private final AtomicInteger mThreadId = new AtomicInteger(0);
+
+            @SuppressLint("DefaultLocale")
+            @Override
+            public Thread newThread(@NotNull Runnable r) {
+                Thread t = new Thread(r);
+                t.setName(String.format(THREAD_NAME_STEM, mThreadId.getAndIncrement()));
+                return t;
+            }
+        };
+        mDiskIO = Executors.newFixedThreadPool(4, threadFactory);
     }
 
     public static TaskExecutor get() {
@@ -47,17 +55,8 @@ public class TaskExecutor {
         return Looper.getMainLooper().getThread() == Thread.currentThread();
     }
 
-    private ThreadFactory threadFactory = new ThreadFactory() {
-        private static final String THREAD_NAME_STEM = "arch_disk_io_%d";
+    private static final class Holder {
+        private static final TaskExecutor sInstance = new TaskExecutor();
+    }
 
-        private final AtomicInteger mThreadId = new AtomicInteger(0);
-
-        @SuppressLint("DefaultLocale")
-        @Override
-        public Thread newThread(@NotNull Runnable r) {
-            Thread t = new Thread(r);
-            t.setName(String.format(THREAD_NAME_STEM, mThreadId.getAndIncrement()));
-            return t;
-        }
-    };
 }

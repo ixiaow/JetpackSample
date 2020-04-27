@@ -2,7 +2,7 @@ package com.mooc.ppjoke;
 
 import android.app.Application;
 
-import com.mooc.network.http.LiveHttp;
+import com.mooc.network.LiveHttp;
 
 /**
  * 咱们的服务器已经部署到公网了.

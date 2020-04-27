@@ -10,7 +10,7 @@ import com.mooc.common.utils.AppGlobals;
 import com.mooc.common.utils.ToastUtil;
 import com.mooc.network.ApiResponse;
 import com.mooc.network.HttpObserver;
-import com.mooc.network.http.LiveHttp;
+import com.mooc.network.LiveHttp;
 import com.mooc.ppjoke.Api;
 import com.mooc.ppjoke.base.BaseViewModel;
 import com.mooc.ppjoke.model.User;
@@ -78,7 +78,7 @@ public class LoginViewModel extends BaseViewModel {
     private void save(String nickname, String avatar, String openid, long expires_time) {
         LiveHttp.create()
                 .get()
-                .url(Api.INSERT_USER)
+                .path(Api.INSERT_USER)
                 .addParam("name", nickname)
                 .addParam("avatar", avatar)
                 .addParam("qqOpenId", openid)

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <com.mooc.common.view.PPImageView
+        android:id="@+id/blur_image"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:src="@color/color_theme_10" />
+
+    <!--    动态添加PlayView到此处-->
+
+    <com.mooc.common.view.PPImageView
+        android:id="@+id/cover_image"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+</FrameLayout>

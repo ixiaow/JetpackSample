@@ -25,7 +25,8 @@ import com.mooc.common.utils.PxUtils;
 import com.mooc.common.view.PPImageView;
 import com.mooc.ppjoke.R;
 
-public class ListPlayerView extends FrameLayout implements IPlayTarget, PlayerControlView.VisibilityListener, Player.EventListener {
+public class ListPlayerView extends FrameLayout implements IPlayTarget,
+        PlayerControlView.VisibilityListener, Player.EventListener {
     private final PPImageView cover;
     private final PPImageView blurBackground;
     private final ImageView playBtn;
@@ -151,7 +152,7 @@ public class ListPlayerView extends FrameLayout implements IPlayTarget, PlayerCo
                 ((ViewGroup) parent).removeView(playerView);
             }
             ViewGroup.LayoutParams layoutParams = cover.getLayoutParams();
-            this.addView(playerView, layoutParams);
+            this.addView(playerView, 1,layoutParams);
         }
 
         parent = controlView.getParent();

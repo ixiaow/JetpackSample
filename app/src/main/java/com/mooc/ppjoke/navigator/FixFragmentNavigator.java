@@ -108,12 +108,7 @@ public class FixFragmentNavigator extends FragmentNavigator {
             }
         }
 
-        if (mBackStack == null) {
-            Log.e(TAG, " mBackStack is null");
-            return null;
-        }
-
-        final boolean initialNavigation = mBackStack.isEmpty();
+        final boolean initialNavigation = mBackStack == null || mBackStack.isEmpty();
         Integer peekLast = null;
         if (!initialNavigation) {
             peekLast = mBackStack.peekLast();
@@ -153,7 +148,9 @@ public class FixFragmentNavigator extends FragmentNavigator {
         ft.commit();
         // The commit succeeded, update our view of the world
         if (isAdded) {
-            mBackStack.add(destId);
+            if (mBackStack != null) {
+                mBackStack.add(destId);
+            }
             return destination;
         } else {
             return null;

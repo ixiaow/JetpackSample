@@ -9,8 +9,8 @@ import com.mooc.common.utils.Logs;
 import com.mooc.common.utils.ToastUtil;
 import com.mooc.network.ApiResponse;
 import com.mooc.network.HttpObserver;
-import com.mooc.network.http.Config;
-import com.mooc.network.http.LiveHttp;
+import com.mooc.network.http.HttpConfig;
+import com.mooc.network.LiveHttp;
 import com.mooc.ppjoke.Api;
 import com.mooc.ppjoke.base.AbsViewModel;
 import com.mooc.ppjoke.model.Feed;
@@ -58,14 +58,14 @@ public class HomeViewModel extends AbsViewModel<Integer, Feed> {
         }
         Logs.d("loadData current thread: " + Thread.currentThread().getName());
         LiveHttp.create()
-                .url(Api.QUERY_HOT_FEED_LIST)
+                .path(Api.QUERY_HOT_FEED_LIST)
                 .get()
                 .addParam("feedType", "all")
                 .addParam("userId", UserManager.get().getUserId())
                 .addParam("feedId", key)
                 .addParam("pageCount", count)
                 .isAsync(isAsync)
-                .cacheStrategy(key == 0 ? Config.CACHE_FIRST : Config.NET_ONLY)
+                .cacheStrategy(key == 0 ? HttpConfig.CACHE_FIRST : HttpConfig.NET_ONLY)
                 .observe(viewLifecycleOwner, new HttpObserver<ApiResponse<List<Feed>>>() {
                     @Override
                     public void onChanged(ApiResponse<List<Feed>> apiResponse) {
