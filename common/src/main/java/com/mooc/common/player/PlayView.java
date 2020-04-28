@@ -17,6 +17,7 @@ public class PlayView {
     public ExoPlayer exoPlayer;
     public PlayerView playerView;
     public PlayerControlView controlView;
+    public String playUrl;
 
     public PlayView() {
         Application application = AppGlobals.getApplication();

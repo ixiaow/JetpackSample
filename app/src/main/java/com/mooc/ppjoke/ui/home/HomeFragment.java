@@ -8,20 +8,19 @@ import androidx.annotation.Nullable;
 import androidx.paging.PagedListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.mooc.common.player.ListPlayDetector;
 import com.mooc.navannotation.FragmentDestination;
 import com.mooc.ppjoke.base.AbsListFragment;
 import com.mooc.ppjoke.model.Feed;
-import com.mooc.ppjoke.view.player.PageListPlayDetector;
 
 @FragmentDestination(pageUrl = "main/tabs/home", asStarter = true)
 public class HomeFragment extends AbsListFragment<Integer, Feed, HomeViewModel> {
 
-    private PageListPlayDetector pageListPlayDetector;
+    private ListPlayDetector pageListPlayDetector;
     private boolean shouldPause;
     private String feedType;
 
     public static HomeFragment newInstance(String feedType) {
-
         Bundle args = new Bundle();
         HomeFragment fragment = new HomeFragment();
         args.putString("feedType", feedType);
@@ -32,7 +31,7 @@ public class HomeFragment extends AbsListFragment<Integer, Feed, HomeViewModel> 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        pageListPlayDetector = new PageListPlayDetector(getViewLifecycleOwner(), recyclerView);
+        pageListPlayDetector = new ListPlayDetector(getViewLifecycleOwner(), recyclerView);
         pageListPlayDetector.setCategory(feedType);
     }
 

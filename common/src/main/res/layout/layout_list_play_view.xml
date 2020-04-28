@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
@@ -16,4 +16,19 @@
         android:id="@+id/cover_image"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
-</FrameLayout>
+
+    <com.mooc.common.view.PPImageView
+        android:id="@+id/player_icon"
+        android:layout_width="@dimen/dp_40"
+        android:layout_height="@dimen/dp_40"
+        android:layout_gravity="center"
+        android:src="@drawable/icon_video_play" />
+
+    <ProgressBar
+        android:id="@+id/buffer_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:indeterminate="true"
+        android:indeterminateTint="@color/color_theme" />
+</merge>
