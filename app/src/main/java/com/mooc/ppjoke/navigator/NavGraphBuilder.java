@@ -3,6 +3,8 @@ package com.mooc.ppjoke.navigator;
 import android.app.Application;
 import android.content.ComponentName;
 
+import androidx.annotation.IdRes;
+import androidx.annotation.NonNull;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.navigation.ActivityNavigator;
@@ -21,7 +23,7 @@ import java.util.Map;
 
 public class NavGraphBuilder {
 
-    public static void build(FragmentActivity activity, int navHostId) {
+    public static void build(@NonNull FragmentActivity activity, @IdRes int navHostId) {
 
         // 此处很重要，需要通过containerId找到NavHostFragment
         NavHostFragment fragment = (NavHostFragment) activity.getSupportFragmentManager().findFragmentById(navHostId);

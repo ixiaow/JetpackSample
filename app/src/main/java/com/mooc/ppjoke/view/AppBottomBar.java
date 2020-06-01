@@ -26,6 +26,9 @@ import com.mooc.ppjoke.utils.AppConfig;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * 自定义底部导航栏，通过读取assets目录下的配置文件来显示底部item
+ */
 public class AppBottomBar extends BottomNavigationView {
     private static int[] icons = {
             R.drawable.icon_tab_home,

@@ -6,6 +6,7 @@ import com.mooc.navannotation.ActivityDestination;
 import com.mooc.navannotation.FragmentDestination;
 
 import java.io.BufferedOutputStream;
+import java.io.Closeable;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -14,6 +15,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import javax.annotation.Nonnull;
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.Filer;
 import javax.annotation.processing.Messager;
@@ -114,7 +116,7 @@ public class NavProcessor extends AbstractProcessor {
             } catch (IOException e) {
                 e.printStackTrace();
             } finally {
-                Utils.closeQuietly(os, fos);
+                closeQuietly(os, fos);
             }
         }
 
@@ -171,5 +173,14 @@ public class NavProcessor extends AbstractProcessor {
         }
     }
 
+    private static void closeQuietly(@Nonnull Closeable... closeables) {
 
+        for (Closeable closeable : closeables) {
+            try {
+                closeable.close();
+            } catch (IOException ignore) {
+                //e.printStackTrace();
+            }
+        }
+    }
 }
