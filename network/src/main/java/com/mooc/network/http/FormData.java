@@ -20,6 +20,10 @@ public enum FormData {
         return value;
     }
 
+    /**
+     * 获取Content-Type header
+     * @return Pair类型的数据 first为"Content-Type", second 为 具体的提交类型header
+     */
     public Pair<String, String> getHeader() {
         return new Pair<>("Content-Type", getValue());
     }

@@ -4,6 +4,7 @@ import android.text.TextUtils;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
+import androidx.collection.ArrayMap;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -13,7 +14,6 @@ import java.util.Map;
 
 public class HttpConfig {
     public static final String JSON_KEY = "json";
-
 
     /**
      * http get请求方式
@@ -76,15 +76,15 @@ public class HttpConfig {
     /**
      * http请求头部信息
      */
-    private Map<String, String> headers;
+    private ArrayMap<String, String> headers;
     /**
      * http请求的参数
      */
-    private Map<String, Object> params;
+    private ArrayMap<String, Object> params;
 
     public HttpConfig() {
-        headers = new HashMap<>();
-        params = new HashMap<>();
+        headers = new ArrayMap<>();
+        params = new ArrayMap<>();
     }
 
     /**
@@ -107,7 +107,7 @@ public class HttpConfig {
     }
 
     @NonNull
-    public Map<String, String> getHeaders() {
+    public ArrayMap<String, String> getHeaders() {
         return headers;
     }
 
@@ -131,7 +131,7 @@ public class HttpConfig {
     }
 
     @NonNull
-    public Map<String, Object> getParams() {
+    public ArrayMap<String, Object> getParams() {
         return params;
     }
 

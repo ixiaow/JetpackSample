@@ -26,6 +26,7 @@ public class UrlCreator {
         if (params.isEmpty()) {
             return url;
         }
+
         StringBuilder sb = new StringBuilder(url);
 
         if (url.indexOf("&") > 0 || url.indexOf("?") > 0) {

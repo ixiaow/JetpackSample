@@ -5,6 +5,7 @@ import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.collection.ArrayMap;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -20,7 +21,8 @@ import java.lang.reflect.Type;
 import java.util.Map;
 
 public class LiveHttp {
-    private static IHttpEngine sHttpEngine = new OkHttpEngine();
+    // 提供一个默认引擎
+    private static volatile IHttpEngine sHttpEngine = new OkHttpEngine();
     private static String sBaseUrl;
     private HttpConfig mConfig;
 
@@ -88,9 +90,7 @@ public class LiveHttp {
      * 设置post请求方式
      */
     public LiveHttp post() {
-        mConfig.method = HttpConfig.POST;
-        mConfig.setPostType(FormData.FORM_DATA);
-        return this;
+        return post(FormData.FORM_DATA);
     }
 
     /**
@@ -139,7 +139,7 @@ public class LiveHttp {
     /**
      * 设置解析的数据类型
      */
-    public LiveHttp registerType(TypeToken typeReference) {
+    public LiveHttp registerType(TypeToken<?> typeReference) {
         mConfig.type = typeReference.getType();
         return this;
     }
@@ -169,7 +169,7 @@ public class LiveHttp {
      *
      * @param params map参数集合
      */
-    public LiveHttp addParams(Map<String, Object> params) {
+    public LiveHttp addParams(ArrayMap<String, Object> params) {
         this.mConfig.addParams(params);
         return this;
     }
@@ -179,7 +179,7 @@ public class LiveHttp {
      *
      * @param headers map 头部集合
      */
-    public LiveHttp addHeaders(Map<String, String> headers) {
+    public LiveHttp addHeaders(ArrayMap<String, String> headers) {
         this.mConfig.addHeaders(headers);
         return this;
     }
@@ -198,7 +198,7 @@ public class LiveHttp {
     /**
      * 开始订阅请求网络数据
      */
-    public <T> void observe(LifecycleOwner owner, HttpObserver<ApiResponse<T>> observer) {
+    public <T> void observe(@NonNull LifecycleOwner owner, @NonNull HttpObserver<ApiResponse<T>> observer) {
         // 获取泛型实际类型
         Type type = observer.getType();
         mConfig.type = type;

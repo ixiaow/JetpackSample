@@ -21,7 +21,7 @@ public class ConvertFactory<R> implements IConvert<Response, R> {
 
     public static ConvertFactory create() {
         if (convertFactory == null) {
-            convertFactory = new ConvertFactory();
+            convertFactory = new ConvertFactory<>();
         }
         return convertFactory;
     }
@@ -51,7 +51,7 @@ public class ConvertFactory<R> implements IConvert<Response, R> {
                 }
             } catch (IOException e) {
                 e.printStackTrace();
-                apiResponse.status = 500;
+                apiResponse.status = ApiResponse.LOCAL_ERROR;
                 apiResponse.message = e.getMessage();
             }
         }

@@ -18,7 +18,7 @@ public class TaskExecutor {
 
     private TaskExecutor() {
         ThreadFactory threadFactory = new ThreadFactory() {
-            private static final String THREAD_NAME_STEM = "arch_disk_io_%d";
+            private static final String THREAD_NAME_STEM = "task_disk_io_%d";
             private final AtomicInteger mThreadId = new AtomicInteger(0);
 
             @SuppressLint("DefaultLocale")
