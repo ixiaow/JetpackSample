@@ -12,10 +12,8 @@ import androidx.lifecycle.ViewModelProviders;
 
 import com.mooc.common.utils.Logs;
 import com.mooc.common.view.ShareDialog;
-import com.mooc.navannotation.FragmentDestination;
 import com.mooc.ppjoke.R;
 
-@FragmentDestination(pageUrl = "main/tabs/sofa")
 public class SofaFragment extends Fragment {
 
     private DashboardViewModel dashboardViewModel;

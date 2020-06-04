@@ -1,8 +1,9 @@
 apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-kapt'
 
 android {
     compileSdkVersion androidConfig.compileSdkVersion
-    buildToolsVersion androidConfig.buildToolsVersion
 
     defaultConfig {
         minSdkVersion androidConfig.minSdkVersion
@@ -26,8 +27,8 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
     }
 
-    dataBinding {
-        enabled true
+    buildFeatures {
+        dataBinding = true
     }
 
 }
@@ -40,7 +41,10 @@ dependencies {
     androidTestImplementation deps.espresso_core
     implementation deps.room_runtime
     implementation deps.room_lifecycle_extensions
-    annotationProcessor deps.room_compiler
-    annotationProcessor deps.room_lifecycle_compiler
+    kapt deps.room_compiler
+    kapt deps.room_lifecycle_compiler
     implementation deps.fastjson
+    implementation deps.stdlib_jdk
+    implementation deps.core_ktx
+    implementation deps.lifecycle_viewmodel_ktx
 }

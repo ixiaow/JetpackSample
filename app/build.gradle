@@ -1,9 +1,9 @@
 apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-kapt'
 
 android {
     compileSdkVersion androidConfig.compileSdkVersion
-    buildToolsVersion androidConfig.buildToolsVersion
-
     defaultConfig {
         applicationId androidConfig.applicationId
         minSdkVersion androidConfig.minSdkVersion
@@ -40,8 +40,8 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
     }
 
-    dataBinding {
-        enabled true
+    buildFeatures {
+        dataBinding = true
     }
 
 }
@@ -57,9 +57,12 @@ dependencies {
     implementation deps.navigation_ui
     implementation deps.lifecycle_extensions
     implementation project(':annotation')
-    annotationProcessor project(':compiler')
+    kapt project(':compiler')
     implementation project(':network')
     implementation project(':common')
     implementation deps.paging
     implementation files('libs/open_sdk_r6140_lite.jar')
+    implementation deps.stdlib_jdk
+    implementation deps.core_ktx
+    implementation deps.lifecycle_viewmodel_ktx
 }

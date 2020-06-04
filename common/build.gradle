@@ -1,4 +1,6 @@
 apply from: '../module.gradle'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-kapt'
 
 dependencies {
     api deps.smart_refresh_layout
@@ -9,6 +11,8 @@ dependencies {
     api deps.exoplayer.core
     api deps.exoplayer.dash
     api deps.exoplayer.ui
-
-    annotationProcessor deps.glide_compiler
+    kapt deps.glide_compiler
+}
+repositories {
+    mavenCentral()
 }

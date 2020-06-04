@@ -4,10 +4,8 @@ import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.mooc.navannotation.ActivityDestination;
 import com.mooc.ppjoke.R;
 
-@ActivityDestination(pageUrl = "main/tabs/publish")
 public class PublishActivity extends AppCompatActivity {
 
     @Override

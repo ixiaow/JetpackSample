@@ -8,12 +8,11 @@ import androidx.annotation.Nullable;
 import androidx.paging.PagedListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.mooc.annotation.Destination;
 import com.mooc.common.player.ListPlayDetector;
-import com.mooc.navannotation.FragmentDestination;
 import com.mooc.ppjoke.base.AbsListFragment;
 import com.mooc.ppjoke.model.Feed;
-
-@FragmentDestination(pageUrl = "main/tabs/home", asStarter = true)
+@Destination.Fragment(pageUrl = "main/tab")
 public class HomeFragment extends AbsListFragment<Integer, Feed, HomeViewModel> {
 
     private ListPlayDetector pageListPlayDetector;
