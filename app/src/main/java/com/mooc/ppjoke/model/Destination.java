@@ -1,13 +1,14 @@
 package com.mooc.ppjoke.model;
 
 public class Destination {
+
     /**
      * asStarter : false
-     * id : 1054033413
+     * id : 1477091488
      * isFragment : true
      * isNeedLogin : false
-     * name : com.mooc.ppjoke.ui.home.HomeFragment
-     * pageUrl : /home/tab/
+     * name : com.mooc.ppjoke.ui.find.FindFragment
+     * pageUrl : main/tabs/find
      */
 
     public boolean asStarter;

@@ -10,10 +10,12 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
 
+import com.mooc.annotation.Destination;
 import com.mooc.common.utils.Logs;
 import com.mooc.common.view.ShareDialog;
 import com.mooc.ppjoke.R;
 
+@Destination.Fragment(pageUrl = "main/tabs/sofa")
 public class SofaFragment extends Fragment {
 
     private DashboardViewModel dashboardViewModel;

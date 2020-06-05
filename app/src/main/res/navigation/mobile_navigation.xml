@@ -20,7 +20,7 @@
 
     <fragment
         android:id="@+id/navigation_notifications"
-        android:name="com.mooc.ppjoke.ui.notifications.MineFragment"
+        android:name="com.mooc.ppjoke.ui.mine.MineFragment"
         android:label="@string/title_notifications"
         tools:layout="@layout/fragment_notifications" />
 </navigation>

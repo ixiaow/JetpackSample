@@ -7,11 +7,13 @@ import androidx.annotation.NonNull;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Objects;
 
 public class AppGlobals {
     private static Application application;
 
     @SuppressLint("PrivateApi")
+    @NonNull
     public static Application getApplication() {
         if (application == null) {
             try {
@@ -24,10 +26,10 @@ public class AppGlobals {
                 e.printStackTrace();
             }
         }
-        return application;
+        return Objects.requireNonNull(application);
     }
 
-    public void setApplication(@NonNull Application application) {
+    public static void setApplication(@NonNull Application application) {
         AppGlobals.application = application;
     }
 }

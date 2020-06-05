@@ -33,9 +33,9 @@ public class Feed extends BaseObservable implements Serializable {
     public long itemId;
     public int itemType;
     public long createTime;
-    public int duration;
+    public double duration;
     public String feeds_text;
-    public int authorId;
+    public long authorId;
     public String activityIcon;
     public String activityText;
     public int width;

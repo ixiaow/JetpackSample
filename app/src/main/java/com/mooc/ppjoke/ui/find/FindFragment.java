@@ -9,9 +9,11 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
 
+import com.mooc.annotation.Destination;
 import com.mooc.common.utils.Logs;
 import com.mooc.ppjoke.R;
 
+@Destination.Fragment(pageUrl = "main/tabs/find")
 public class FindFragment extends Fragment {
 
     private HomeViewModel homeViewModel;

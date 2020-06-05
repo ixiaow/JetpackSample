@@ -43,7 +43,7 @@ public class HomeViewModel extends AbsViewModel<Integer, Feed> {
             @NonNull
             @Override
             public Integer getKey(@NonNull Feed item) {
-                return item.id;
+                return (int) item.id;
             }
         };
     }

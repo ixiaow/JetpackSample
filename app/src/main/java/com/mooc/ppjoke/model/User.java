@@ -24,8 +24,8 @@ public class User implements Serializable {
      * hasFollow : false
      */
 
-    public int id;
-    public int userId;
+    public long id;
+    public long userId;
     public String name;
     public String avatar;
     public String description;

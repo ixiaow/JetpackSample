@@ -12,7 +12,8 @@ import com.mooc.annotation.Destination;
 import com.mooc.common.player.ListPlayDetector;
 import com.mooc.ppjoke.base.AbsListFragment;
 import com.mooc.ppjoke.model.Feed;
-@Destination.Fragment(pageUrl = "main/tab")
+
+@Destination.Fragment(pageUrl = "main/tabs/home", asStarter = true)
 public class HomeFragment extends AbsListFragment<Integer, Feed, HomeViewModel> {
 
     private ListPlayDetector pageListPlayDetector;

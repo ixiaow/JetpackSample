@@ -7,7 +7,7 @@ import java.io.Serializable;
 import java.util.Objects;
 
 public class Comment extends BaseObservable implements Serializable {
-    public int id;
+    public long id;
     public long itemId;
     public long commentId;
     public long userId;

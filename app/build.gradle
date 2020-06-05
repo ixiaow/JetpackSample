@@ -1,6 +1,7 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
+apply plugin: 'kotlin-android-extensions'
 
 android {
     compileSdkVersion androidConfig.compileSdkVersion
@@ -40,6 +41,10 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
     }
 
+    kotlinOptions {
+        jvmTarget = JavaVersion.VERSION_1_8.toString()
+    }
+
     buildFeatures {
         dataBinding = true
     }
@@ -65,4 +70,5 @@ dependencies {
     implementation deps.stdlib_jdk
     implementation deps.core_ktx
     implementation deps.lifecycle_viewmodel_ktx
+    implementation deps.navigation_runtime_ktx
 }
